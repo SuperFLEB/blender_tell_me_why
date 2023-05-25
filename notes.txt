@@ -1,0 +1,30 @@
+"Tell Me Why" addon.
+
+N-Panel ==========================================================
+[ Dropdown of all unconnected input sockets. ]
+----------------------------------------------
+Multiline textbox with a description of the input socket.
+[Edit]
+
+(if the node has no formula)
+[Add Formula]
+(if the node has a formula)
+-UIList------------------------
+var     | val  | desc
+pi      | 3.14 | value of pi
+repeats | 5    | number of repe
+-------------------------------
+
+Formula:
+[ 10 * pi * repeats           ]
+
+(If trusted and value matches)
+Value is up-to-date
+(If trusted and value does not match)
+Value has been changed
+[Recalculate and set]
+(If untrusted)
+(Cannot check value on an untrusted file.)
+[ Show all formulas ][ Trust this file ]
+==========================================================
+
