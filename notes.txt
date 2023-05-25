@@ -1,5 +1,29 @@
 "Tell Me Why" addon.
 
+Trust:
+For trusting, show a trust dialog when a node with TMY is first clicked on.
+To remember trust, create a random "trust key" in a property attached to the file, and put it in the
+    addon's preferences. If the file has a trust key and it matches, trust the file.
+For security, ALWAYS APPEND NEWLY-GENERATED TRUST KEYS. NEVER USE UNKNOWN TRUST KEYS THAT ALREADY EXIST.
+    (Otherwise, someone could sign a benign file with a known trust key, then use the same one on a malicious file)
+Trust Actions:
+    1. Always trust this file and its derivatives (Trust Key)
+    2. Trust this file, but ask again if any formulas change (Formulas Hash)
+    3. Do not trust this file
+    4. Never trust this file or its derivatives (Distrust Key)
+    5. More information / Formula Dump
+
+Settings Panel:
+- Trust Keys (Original filename, Key)
+- Distrust Keys (Original filename, Key)
+- When formulas are encountered on an untrusted file:
+    1. Ask whether to trust the file
+    2. Never trust the file (Files can be added with "Trust this file" menu action)
+
+[ ] If I create a formula for the first time, always trust the file
+
+
+
 N-Panel ==========================================================
 [ Dropdown of all unconnected input sockets. ]
 ----------------------------------------------
