@@ -13,7 +13,7 @@ _LOADED = True
 
 def get_default_explanation():
     return {
-        "description": "No Description",
+        "description": "(No Explanation)",
         "value": None,
         "formula": None,
     }
