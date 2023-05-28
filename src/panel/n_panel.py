@@ -11,8 +11,12 @@ if "_LOADED" in locals():
 _LOADED = True
 
 
-def filter_inputs(inputs):
-    return [input for input in inputs if input.enabled]
+def is_socket_explainable(input):
+    if not input.enabled:
+        return False
+    if input.type == "CUSTOM":
+        return False
+    return True
 
 
 class TellMeWhyNPanel(Panel):
@@ -25,27 +29,22 @@ class TellMeWhyNPanel(Panel):
     def draw(self, context):
         layout = self.layout
         node = context.active_node
+        if not (node and node.select):
+            layout.label(text="No node selected")
+            return
 
         explanation = node['explanation'] if 'explanation' in node else [{} for n in node.inputs]
 
-        for index, socket in enumerate(filter_inputs(node.inputs)):
-            if explanation[index]:
-                socket_layout = layout.column(heading=socket.name)
-                socket_layout.label(text=f"{socket.name}: {node_lib.default_value_string(socket)}")
-                socket_layout.label(text=explanation[index]['description'])
-                create_button = socket_layout.operator(
-                    explanation_operators.RemoveExplanation.bl_idname,
-                    text="Remove Explanation"
-                )
-                create_button.input_socket_index = index
-            else:
-                socket_layout = layout.row(heading=socket.name)
-                socket_layout.label(text=f"{socket.name}: {node_lib.default_value_string(socket)}")
-                create_button = socket_layout.operator(
-                    explanation_operators.CreateExplanation.bl_idname,
-                    text=f"Explain {socket.name}"
-                )
-                create_button.input_socket_index = index
+        for socket in [s for s in node.inputs if is_socket_explainable(s)]:
+            col = layout.column()
+            col.context_pointer_set(name='operator_socket', data=socket)
+            if hasattr(socket, 'explanation'):
+                if socket.explanation.active:
+                    col.operator(explanation_operators.RemoveSocketExplanation.bl_idname, text=f"Remove Explnation")
+                    col.prop(data=socket.explanation, property="description")
+                    col.prop(data=socket.explanation, property="formula")
+                else:
+                    col.operator(explanation_operators.CreateSocketExplanation.bl_idname, text=f"Explain {socket.name}")
 
 
 REGISTER_CLASSES = [TellMeWhyNPanel]
