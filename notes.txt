@@ -2,16 +2,23 @@
 
 Trust:
 For trusting, show a trust dialog when a node with TMY is first clicked on.
-To remember trust, create a random "trust key" in a property attached to the file, and put it in the
-    addon's preferences. If the file has a trust key and it matches, trust the file.
-For security, ALWAYS APPEND NEWLY-GENERATED TRUST KEYS. NEVER USE UNKNOWN TRUST KEYS THAT ALREADY EXIST.
-    (Otherwise, someone could sign a benign file with a known trust key, then use the same one on a malicious file)
-Trust Actions:
-    1. Always trust this file and its derivatives (Trust Key)
-    2. Trust this file, but ask again if any formulas change (Formulas Hash)
-    3. Do not trust this file
-    4. Never trust this file or its derivatives (Distrust Key)
-    5. More information / Formula Dump
+
+If the user selects "Always trust", then:
+
+1. Collect all formulas in the file
+2. If the user doesn't have a Trust ID, create one (random string)
+3. Append the Trust ID to the formula collection, and hash
+4. Save the hash to the user's Trusted Hashes list, with filename and time
+5. Attach "Trusted" and "Save Trust" flags to the file in a scope that will not be saved and will not stay with the session
+
+When the user saves a file:
+1. If the "Save Trust" flag is set, hash the formulas and the Trust ID as per above, and write the new value as a new always-trust hash to the preferences.
+
+When the user opens a file:
+1. Collect and hash all formulas in the file along with the user's Trust ID, as per above
+2. If the hash matches any of the user's always-trust hashes in their preferences, set the "Trust" and "Save Trust" flags
+
+If the user wants to un-trust a file, they can remove the Trust Hash from their preferences. Trust hashes should include file path and time
 
 Settings Panel:
 - Trust Keys (Original filename, Key)

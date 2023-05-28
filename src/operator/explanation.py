@@ -1,7 +1,7 @@
 import bpy
 from typing import Set
-from bpy.types import Operator
-from bpy.props import IntProperty
+from bpy.types import Operator, NodeSocket, PropertyGroup
+from bpy.props import StringProperty, BoolProperty
 
 if "_LOADED" in locals():
     import importlib
@@ -11,48 +11,38 @@ if "_LOADED" in locals():
 _LOADED = True
 
 
-def get_default_explanation():
-    return {
-        "description": "(No Explanation)",
-        "value": None,
-        "formula": None,
-    }
+class Explanation(PropertyGroup):
+    active: BoolProperty(name="active", default=False)
+    description: StringProperty(name="description", default="")
+    formula: StringProperty(name="formula", default="")
+
+    @classmethod
+    def post_register(cls):
+        NodeSocket.explanation = bpy.props.PointerProperty(type=cls, name="explanation")
 
 
-class CreateExplanation(Operator):
+class CreateSocketExplanation(Operator):
     """Initialize Tell Me Why data for a given node"""
     bl_idname = "tell_me_why.create_explanation"
     bl_label = "Create Tell Me Why Explanation"
     bl_options = {'UNDO'}
-    input_socket_index: IntProperty(
-        name="input_socket_index",
-        default=0
-    )
 
     def execute(self, context) -> Set[str]:
-        node = context.active_node
-        node_explanation: list[dict] = node['explanation'] if 'explanation' in node else [{} for socket in node.inputs]
-        node_explanation[self.input_socket_index] = get_default_explanation()
-        node['explanation'] = node_explanation
+        socket = context.operator_socket
+        socket.explanation.active = True
         return {'FINISHED'}
 
 
-class RemoveExplanation(Operator):
+class RemoveSocketExplanation(Operator):
     """Initialize Tell Me Why data for a given node"""
     bl_idname = "tell_me_why.remove_explanation"
     bl_label = "Remove Tell Me Why Explanation"
     bl_options = {'UNDO'}
-    input_socket_index: IntProperty(
-        name="input_socket_index",
-        default=0
-    )
 
     def execute(self, context) -> Set[str]:
-        node = context.active_node
-        node_explanation: list[dict] = node['explanation'] if 'explanation' in node else [{} for socket in node.inputs]
-        node_explanation[self.input_socket_index] = {}
-        node['explanation'] = node_explanation
+        socket = context.operator_socket
+        socket.property_unset('explanation')
         return {'FINISHED'}
 
 
-REGISTER_CLASSES = [CreateExplanation, RemoveExplanation]
+REGISTER_CLASSES = [Explanation, CreateSocketExplanation, RemoveSocketExplanation]

@@ -3,7 +3,6 @@ import bpy
 from bpy.types import NodeSocket
 
 
-
 def default_value_string(socket: NodeSocket, unprintable: str = "---", float_fix: int = 3):
     def fix(val):
         return f"{{0:.{float_fix}f}}".format(val)
