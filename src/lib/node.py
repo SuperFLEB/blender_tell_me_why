@@ -1,4 +1,3 @@
-from typing import Iterable, Callable
 import bpy
 from bpy.types import NodeSocket
 
@@ -22,3 +21,19 @@ def default_value_string(socket: NodeSocket, unprintable: str = "---", float_fix
         return "True" if socket.default_value else "False"
     return unprintable
 
+
+def get_value_types(socket: NodeSocket) -> list[str]:
+    types = {
+        "INT": ['int'],
+        "VALUE": ['float'],
+        "VECTOR": ['float','float','float'],
+        "RGBA": ['float','float','float','float'],
+        "BOOLEAN": ['bool']
+    }
+    for t in ['STRING', 'SHADER', 'OBJECT', 'IMAGE', 'TEXTURE', 'MATERIAL', 'COLLECTION']:
+        types[t] = ['string']
+    return types[socket.type] if socket.type in types else []
+
+
+def can_value_numeric_compare(socket: NodeSocket):
+    return socket.type in ['INT', 'VALUE', 'VECTOR', 'RGBA']

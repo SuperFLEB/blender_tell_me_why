@@ -18,10 +18,10 @@ bl_info = {
     "name": "Tell Me Why",
     "description": "Description goes here",
     "author": "FLEB (a.k.a. SuperFLEB)",
-    "version": (0, 1, 0),
+    "version": (0, 0, 1),
     "blender": (3, 4, 0),
     "location": "View3D > Object",
-    "warning": "", # used for warning icon and text in addons panel
+    "warning": "DO NOT ACTIVATE! This extension allows unsafe Python code execution, and should not be used until that is mitigated", # used for warning icon and text in addons panel
     "doc_url": "https://github.com/SuperFLEB/blender_tell_me_why",
     "tracker_url": "https://github.com/SuperFLEB/blender_tell_me_why/issues",
     "support": "COMMUNITY",
