@@ -1,6 +1,17 @@
 import bpy
 from math import isclose
 from collections.abc import Iterable
+from . import pkginfo
+from . import trust as trust_lib
+
+if "_LOADED" in locals():
+    import importlib
+
+    for mod in (pkginfo, trust_lib):  # list all imports here
+        importlib.reload(mod)
+_LOADED = True
+
+package_name = pkginfo.package_name()
 
 ################################################
 # WARNING! WARNING! WARNING! WARNING! WARNING! #
@@ -13,9 +24,34 @@ from collections.abc import Iterable
 
 _formula_cache = {}
 
-
 class FormulaExecutionException(Exception):
     pass
+
+
+class UntrustedExecException(Exception):
+    """An exec cannot be attempted because the user has not expressed trust of the current file."""
+    pass
+
+
+class TrustProblemException(Exception):
+    """There was a problem determining whether the user trusts the current action."""
+    pass
+
+
+def exec_formula(formula: str, node: bpy.types.NodeInternal):
+    if not trust_lib.is_trustable_node(node):
+        raise TrustProblemException("Formula was on a node type or location that is not yet supported")
+
+    if _formula_cache.get(formula, None):
+        return _formula_cache[formula]
+    else:
+        try:
+            # TODO: Add check for
+            result = eval(formula)
+            _formula_cache[formula] = result
+        except BaseException as e:
+            print(f"Failed formula: {e}")
+            raise FormulaExecutionException("Your formula is bad and you should feel bad")
 
 
 def does_value_equal_formula_result(value, formula: str, float_precision: float = 0.00001):

@@ -2,13 +2,14 @@ from typing import Callable
 import bpy
 from .lib import addon
 from .operator import explanation
+from .operator import trust as trust_op
 from .panel import preferences as preferences_panel
 from .panel import n_panel
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (addon, explanation, preferences_panel, n_panel):  # list all imports here
+    for mod in (addon, explanation, preferences_panel, n_panel, trust_op):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -37,6 +38,7 @@ menus: list[tuple[str, Callable]] = []
 # Registerable modules have a REGISTER_CLASSES list that lists all registerable classes in the module
 registerable_modules = [
     explanation,
+    trust_op,
     preferences_panel,
     n_panel
 ]

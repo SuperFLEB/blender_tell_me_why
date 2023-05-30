@@ -3,11 +3,13 @@ from bpy.types import Panel
 from ..operator import explanation as explanation_operators
 from ..lib import node as node_lib
 from ..lib import formula as formula_lib
+from ..lib import trust as trust_lib
+from ..lib import util
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (explanation_operators, node_lib, formula_lib):  # list all imports here
+    for mod in (explanation_operators, node_lib, formula_lib, trust_lib, util):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -30,13 +32,26 @@ class TellMeWhyNPanel(Panel):
     def draw(self, context):
         layout = self.layout
         node = context.active_node
+
         if not (node and node.select):
             layout.label(text="No node selected")
             return
 
+        if not getattr(node, 'inputs', None):
+            layout.label(text="Node has no inputs")
+            return
+
+        if not trust_lib.is_trustable_node(node):
+            message_layout = layout.column()
+            message_layout.scale_y = 0.7
+            for line in util.wordwrap("This node type is not supported by the Tell Me Why addon. Consider raising an issue on the project page. See the support link in the addon's Preferences panel.", 45):
+                message_layout.label(text=line)
+            message_layout.label(text=f"({node.type} in {context.space_data.tree_type} failed is_trustable_node)")
+            return
+
         for socket in [s for s in node.inputs if is_socket_explainable(s)]:
             explanation = socket.explanation
-            socket_layout = layout.column()
+            socket_layout = layout.box()
             socket_layout.context_pointer_set(name='operator_socket', data=socket)
             if hasattr(socket, 'explanation'):
                 if explanation.active:
@@ -76,10 +91,11 @@ class TellMeWhyNPanel(Panel):
                             if component.formula:
                                 match = False
                                 try:
+                                    result = formula_lib.exec_formula(component.formula, node)
                                     match = formula_lib.does_value_equal_formula_result(component_current_value, component.formula)
                                     component_layout.label(text="Value OK" if match else "Value Not Updated")
                                 except formula_lib.FormulaExecutionException as e:
-                                    component_layout.label(text="Formula error")
+                                    component_layout.label(text=f"Formula error")
                             else:
                                 component_layout.label(text="No formula or noted value")
                         else:
