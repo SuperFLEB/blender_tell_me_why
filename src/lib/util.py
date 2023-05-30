@@ -80,3 +80,10 @@ def uilist_sort(items: list[any], make_sortable_fn: Callable[[any], any] = lambd
         moves[original_index] = new_index
 
     return moves
+
+
+def label_or_panel(edit_mode: bool, parent: bpy.types.UILayout, data: bpy.types.AnyType, property: str, label_options: dict = None, prop_options: dict = None, label_text_parser: Callable[[any], str] = lambda val: str(val), dict_object: bool = False):
+    if edit_mode:
+        value = label_text_parser(data.get(property) if dict_object else data.getattr(property))
+        return parent.label(text=value, **(label_options if label_options else {}))
+    return parent.prop(data=data, property=property, **(prop_options if prop_options else {}))

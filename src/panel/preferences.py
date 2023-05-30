@@ -12,17 +12,35 @@ _LOADED = True
 package_name = pkginfo.package_name()
 
 
-class ThePreferencesPanel(bpy.types.AddonPreferences):
+def get_trust_all(self) -> bool:
+    return self.get('trust_all', False)
+
+
+def set_trust_all(self, value):
+    self['trust_all'] = bool(value)
+    self['really_trust_all'] = False
+
+
+class TellMeWhyPrefsPanel(bpy.types.AddonPreferences):
     bl_idname = package_name
-    preferences_checkbox_property: bpy.props.BoolProperty(
-        name="Turn on checkbox in preferences panel",
-        description="If this checkbox is checked, then it is checked",
-        default=False
+    trust_all: bpy.props.BoolProperty(
+        name="Trust all formulas from all files",
+        description="Trust all formulas from all files. This is probably not recommended.",
+        get=lambda self: self.get('trust_all', False),
+        set=set_trust_all
     )
+    really_trust_all: bpy.props.BoolProperty(
+        name="I understand \"Trust all formulas\" is really dangerous",
+        description="Trust all formulas even though this is a huge security backdoor and any malicious Blender file could have full reign of my system."
+    )
+    trust_identity: bpy.props.StringProperty(name="Trust Identity Token", description="A randomly generated token used to make spoofing formula hashes more difficult.", default="")
 
     def draw(self, context) -> None:
         layout = self.layout
-        layout.prop(self, 'preferences_checkbox_property')
+        layout.prop(self, 'trust_all')
+        if self.trust_all:
+            layout.prop(self, 'really_trust_all')
+        layout.label(text=f"Identity Token: " + self.get('trust_identity', "(Not created yet)"))
 
 
-REGISTER_CLASSES = [ThePreferencesPanel]
+REGISTER_CLASSES = [TellMeWhyPrefsPanel]
