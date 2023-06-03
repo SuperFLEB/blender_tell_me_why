@@ -96,10 +96,11 @@ def is_trusted() -> bool:
         return True
 
     # Check for session trust
-    if bpy.context.window_manager[f"{identity}_trust_session"]:
+    if bpy.context.window_manager.get(f"{identity}_trust_session", False):
         return True
 
     # Check for hash trust
+    print("HASH TRUST IS NOT YET IMPLEMENTED!")
 
     return False
 

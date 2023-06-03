@@ -70,6 +70,8 @@ def menuitem(cls: bpy.types.Operator | bpy.types.Menu, operator_context: str = "
 
 def get_registerable_classes(registerable_modules: list[ModuleType]) -> list[Type]:
     module_classes = [m.REGISTER_CLASSES for m in registerable_modules if hasattr(m, "REGISTER_CLASSES")]
+    if len(module_classes) < len(registerable_modules):
+        print("(!) Some modules did not contain valid REGISTER_CLASSES arrays: ", [m.__name__ for m in registerable_modules if not hasattr(m, 'REGISTER_CLASSES')])
     flat_classes = [c for mc in module_classes for c in mc]
     # Deduplicate and preserve order using the Python 3.7+ fact that dicts keep insertion order
     dedupe_classes = list(dict.fromkeys(flat_classes))

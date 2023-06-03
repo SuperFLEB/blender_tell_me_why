@@ -5,11 +5,12 @@ from .operator import explanation
 from .operator import trust as trust_op
 from .panel import preferences as preferences_panel
 from .panel import n_panel
+from .props import wm_props
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (addon, explanation, preferences_panel, n_panel, trust_op):  # list all imports here
+    for mod in (wm_props, addon, explanation, preferences_panel, n_panel, trust_op):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -37,15 +38,17 @@ menus: list[tuple[str, Callable]] = []
 
 # Registerable modules have a REGISTER_CLASSES list that lists all registerable classes in the module
 registerable_modules = [
+    wm_props,
     explanation,
     trust_op,
     preferences_panel,
-    n_panel
+    n_panel,
 ]
 
 
 def register() -> None:
     for c in addon.get_registerable_classes(registerable_modules):
+
         # Attempt to clean up if the addon broke during registration.
         try:
             bpy.utils.unregister_class(c)
@@ -55,10 +58,16 @@ def register() -> None:
         if hasattr(c, 'post_register') and callable(c.post_register):
             c.post_register()
         print("Tell Me Why registered class:", c)
+    for prop_name, prop_def in wm_props.WM_PROPS.items():
+        print("Tell Me Why registered WM property: ", prop_name, prop_def)
+        PropDefClass = prop_def[0]
+        setattr(bpy.types.WindowManager, prop_name, PropDefClass(**prop_def[1]))
     addon.register_menus(menus)
 
 
 def unregister() -> None:
+    for prop_name, prop_def in wm_props.WM_PROPS.items():
+        delattr(bpy.types.WindowManager, prop_name)
     addon.unregister_menus(menus)
     for m in menus[::-1]:
         getattr(bpy.types, m[0]).remove(m[1])

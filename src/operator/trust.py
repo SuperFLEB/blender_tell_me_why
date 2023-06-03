@@ -63,7 +63,7 @@ class ReportFormulas(Operator):
 
         debug_info = f"Debug: Hash value {formula_hash}\n(this information is unique to your configuration)"
 
-        # report.write(f"{title}\n{'=' * len(title)}\n\n{body}\n{formula_report}\n\n{debug_info}")
+        report.write(f"{title}\n{'=' * len(title)}\n\n{body}\n{formula_report}\n\n{debug_info}")
         return {'FINISHED'}
 
 
