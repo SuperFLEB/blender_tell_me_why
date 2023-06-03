@@ -1,13 +1,13 @@
 import bpy
-from math import isclose
 from collections.abc import Iterable
 from . import pkginfo
 from . import trust as trust_lib
+from . import util
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (pkginfo, trust_lib):  # list all imports here
+    for mod in (pkginfo, trust_lib, util):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -38,23 +38,10 @@ class TrustProblemException(Exception):
     pass
 
 
-def exec_formula(formula: str, node: bpy.types.NodeInternal):
+def exec_formula(formula: str, node: bpy.types.NodeInternal, expect_len: int = 1, extend_to_expected: bool = False):
     if not trust_lib.is_trustable_node(node):
         raise TrustProblemException("Formula was on a node type or location that is not yet supported")
 
-    if _formula_cache.get(formula, None):
-        return _formula_cache[formula]
-    else:
-        try:
-            # TODO: Add check for
-            result = eval(formula)
-            _formula_cache[formula] = result
-        except BaseException as e:
-            print(f"Failed formula: {e}")
-            raise FormulaExecutionException("Your formula is bad and you should feel bad")
-
-
-def does_value_equal_formula_result(value, formula: str, float_precision: float = 0.00001):
     if _formula_cache.get(formula, None):
         result = _formula_cache[formula]
     else:
@@ -62,8 +49,31 @@ def does_value_equal_formula_result(value, formula: str, float_precision: float 
             result = eval(formula)
             _formula_cache[formula] = result
         except BaseException as e:
-            print(f"Failed formula: {e}")
-            raise FormulaExecutionException("Your formula is bad and you should feel bad")
+            raise FormulaExecutionException("Formula caused an error")
+
+    if type(result) is str or not hasattr(result, "__len__"):
+        result = [result]
+
+    result_len = len(result)
+
+    if result_len != expect_len and not extend_to_expected:
+        raise FormulaExecutionException("Unexpected result length")
+
+    if expect_len == 1:
+        # Return a scalar
+        return result[0]
+    elif result_len < expect_len:
+        # Extend the list
+        return result + (result[-1:] * (expect_len - result_len))
+    elif result_len > expect_len:
+        # Truncate the list
+        return result[0:expect_len]
+
+    return result
+
+def compare_to_formula(value, formula: str, node: bpy.types.NodeInternal, float_precision: float = 0.00001):
+    value_len = len(value) if type(value) is not str and hasattr(value, '__len__') else 1
+    result = exec_formula(formula, node, value_len, extend_to_expected=True)
 
     multi_value = type(value) is not str and isinstance(value, Iterable)
     multi_result = type(result) is not str and isinstance(result, Iterable)
@@ -84,11 +94,6 @@ def does_value_equal_formula_result(value, formula: str, float_precision: float 
         value = [value]
         result = [result]
 
-    for v, r in zip(value, result):
-        if numeric_value:
-            if not isclose(float(v), float(r), rel_tol=float_precision):
-                return False
-        else:
-            if v != r:
-                return False
-    return True
+    return util.compare_vectors(value, result, float_precision)
+
+

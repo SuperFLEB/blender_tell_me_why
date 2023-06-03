@@ -1,4 +1,5 @@
 from typing import Iterable, Callable
+from math import isclose
 import bpy
 import re
 
@@ -11,7 +12,7 @@ def flatten(list_of_lists: list[list[any]]) -> list[any]:
 def wordwrap(string: str, length: int) -> list[str]:
     """Word wrap a string to the given length"""
     words = [word for word in re.split(' +', string) if word]
-    if not words: return []
+    if not words: return [""]
     lines = [f"{words[0]} "]
     if len(words) > 1:
         for word in words[1:]:
@@ -82,8 +83,55 @@ def uilist_sort(items: list[any], make_sortable_fn: Callable[[any], any] = lambd
     return moves
 
 
-def label_or_panel(edit_mode: bool, parent: bpy.types.UILayout, data: bpy.types.AnyType, property: str, label_options: dict = None, prop_options: dict = None, label_text_parser: Callable[[any], str] = lambda val: str(val), dict_object: bool = False):
+def format_prop_value(value, float_decimals: int = 3):
+    def numstr(num: int | float) -> str:
+        if type(num) is int:
+            return str(num)
+        if type(num) is float:
+            return str(round(num, float_decimals))
+        return str(num)
+
+    if type(value) is str:
+        return value
+
+    if hasattr(value, '__len__') and len(value) > 1:
+        return ("(" + ", ".join([format_prop_value(v) for v in value]) + ")")
+
+    return numstr(value)
+
+
+def edit_mode_prop(edit_mode: bool, parent: bpy.types.UILayout, data: bpy.types.AnyType, property: str, label: str, label_options: dict = None, prop_options: dict = None, label_text_parser: Callable[[any], str] = lambda val: str(val), dict_object: bool = False):
     if edit_mode:
         value = label_text_parser(data.get(property) if dict_object else data.getattr(property))
-        return parent.label(text=value, **(label_options if label_options else {}))
+        prop_label_layout = parent.row()
+        prop_label_layout.label(text=label)
+        prop_label_layout.label(text=value, **(label_options if label_options else {}))
     return parent.prop(data=data, property=property, **(prop_options if prop_options else {}))
+
+
+def compare(a, b, float_precision: float = 0.00001):
+    if type(a) is str:
+        return a == b
+    if hasattr(a, "__len__") != hasattr(b, "__len__"):
+        return False
+    if hasattr(a, "__len__"):
+        return compare_vectors(a, b, float_precision)
+    return compare_scalars(a, b, float_precision)
+
+
+def compare_scalars(a, b, float_precision: float = 0.00001):
+    if type(a) is float or type(b) is float:
+        return isclose(a, b, rel_tol=float_precision)
+    return a == b
+
+
+def compare_vectors(a, b, float_precision: float = 0.00001):
+    for ac, bc in zip(a, b):
+        numeric_value = type(ac) in [int, float] and type(bc) in [int, float]
+        if numeric_value:
+            if not isclose(float(ac), float(bc), rel_tol=float_precision):
+                return False
+        else:
+            if ac != bc:
+                return False
+    return True

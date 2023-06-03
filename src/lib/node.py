@@ -2,6 +2,23 @@ import bpy
 from bpy.types import NodeSocket
 
 
+def socket_type_label(socket: NodeSocket):
+    return {
+        socket.type: socket.type.capitalize(),
+        'INT': 'Integer',
+        'VALUE': 'Float',
+        'STRING': 'String',
+        'VECTOR': 'X, Y, Z',
+        'RGBA': 'R, G, B, A',
+        'SHADER': 'Node',
+        'OBJECT': 'Object',
+        'IMAGE': 'Image',
+        'TEXTURE': 'Texture',
+        'MATERIAL': 'Material',
+        'COLLECTION': 'Collection'
+    }[socket.type]
+
+
 def default_value_string(socket: NodeSocket, unprintable: str = "---", float_fix: int = 3):
     def fix(val):
         return f"{{0:.{float_fix}f}}".format(val)
