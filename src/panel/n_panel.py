@@ -1,15 +1,19 @@
 import bpy
 from bpy.types import Panel, UILayout, NodeSocket, NodeInternal
 from ..operator import explanation as explanation_op
+from ..lib import pkginfo
 from ..lib import node as node_lib
 from ..lib import formula as formula_lib
 from ..lib import trust as trust_lib
+from ..lib import addon as addon_lib
 from ..lib import util
+
+package_name = pkginfo.package_name()
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (explanation_op, node_lib, formula_lib, trust_lib, util):  # list all imports here
+    for mod in (explanation_op, node_lib, formula_lib, trust_lib, addon_lib, util):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -31,6 +35,7 @@ icons = {
     "formula": "DRIVER_TRANSFORM",
     "node_value": "NODE",
     "remove": "X",
+    "security": "DECORATE_LOCKED"
 }
 
 
@@ -44,19 +49,6 @@ class TellMeWhyNPanel(Panel):
     bl_label = 'Tell Me Why'
     bl_space_type = 'NODE_EDITOR'
     bl_region_type = 'UI'
-
-    def ml_label(self, context, layout: bpy.types.UILayout=None, text: str=None, icon: str=None, omit_empty: bool = False) -> None:
-        if omit_empty and not text:
-            return
-        blank_icon = {"icon": "BLANK1"} if icon else {}
-        icon = {"icon": icon} if icon else {}
-
-        container = layout.column()
-        container.scale_y = 0.8
-        lines = util.wordwrap(text, context.region.width / 10)
-        container.label(text=lines[0], **icon)
-        for line in lines[1:]:
-            lbl = container.label(text=line, **blank_icon)
 
     def disregard_node(self, context, layout: bpy.types.UILayout, node: bpy.types.NodeInternal):
         if not (node and node.select):
@@ -87,7 +79,7 @@ class TellMeWhyNPanel(Panel):
         if edit_mode:
             layout.prop(data=socket.explanation, property="description", text="", icon=icons["description"])
         elif socket.explanation.description:
-            self.ml_label(context, layout, text=socket.explanation.description, icon=icons["description"])
+            addon_lib.multiline_label(context, layout, text=socket.explanation.description, icon=icons["description"])
 
 
     def draw_unexplained_socket(self, context, layout, socket):
@@ -138,9 +130,12 @@ class TellMeWhyNPanel(Panel):
 
             expect_len = 1 if explanation.split_components else value_len
             try:
-                result = formula_lib.exec_formula(component.formula, node, expect_len=expect_len, extend_to_expected=True)
+                result = formula_lib.eval_formula(component.formula, node, expect_len=expect_len, extend_to_expected=True)
                 error = False
             except formula_lib.FormulaExecutionException as e:
+                evaluations.append({"value": value, "result": None, "match": False, "error": e})
+                continue
+            except formula_lib.TrustProblemException as e:
                 evaluations.append({"value": value, "result": None, "match": False, "error": e})
                 continue
 
@@ -193,7 +188,7 @@ class TellMeWhyNPanel(Panel):
             if edit_mode:
                 component_layout.prop(data=component, property="description", text="", icon=icons["description"])
             elif component.description:
-                self.ml_label(context, component_layout, text=component.description, icon=icons["description"])
+                addon_lib.multiline_label(context, component_layout, text=component.description, icon=icons["description"])
 
             if edit_mode:
                 formula_layout = component_layout.split(factor=0.2, align=True)
@@ -209,20 +204,22 @@ class TellMeWhyNPanel(Panel):
                             result_layout.label(icon=icons["check"], text="Value Applied")
                         else:
                             result_layout.label(icon=icons["error"], text="Value Not Applied")
+                    elif isinstance(comp_eval['error'], formula_lib.TrustProblemException):
+                        result_layout.label(icon=icons["security"], text="Untrusted: Evaluation Disabled")
                     else:
-                        result_layout.label(icon=icons["error"], text="Invalid Formula")
+                        result_layout.label(icon=icons["error"], text="Missing/Invalid Formula")
                 else:
                     formula_layout.label(text=util.format_prop_value(component_current_value))
             else:
                 component_layout.label(text=util.format_prop_value(component_formula), icon=icons['formula'] if component.use_formula else icons['node_value'])
 
         has_rgba_formulas = False
-        has_formula_errors = False
+        formula_failed_to_evaluate = False
         rgba = [0, 0, 0, 0]
 
         if socket.type == 'RGBA' and formulas_enabled:
             if [ev for ev in evaluations if ev['error']]:
-                has_formula_errors = True
+                formula_failed_to_evaluate = True
 
             if explanation.split_components:
                 rgba = list(socket.default_value)
@@ -234,9 +231,8 @@ class TellMeWhyNPanel(Panel):
                 has_rgba_formulas = True
                 rgba = evaluations[0]['result']
 
-        if has_rgba_formulas and not has_formula_errors:
+        if has_rgba_formulas and not formula_failed_to_evaluate:
             color_match = util.compare_vectors(socket_state.rgba, socket.default_value)
-            print("RGBA?", rgba)
             socket_state.rgba = rgba
             socket_color_layout = socket_layout.row(align=True)
             socket_color_layout.label(text="", icon=icons['check'] if color_match else icons['error'])
@@ -247,8 +243,9 @@ class TellMeWhyNPanel(Panel):
         layout = self.layout
         wm = context.window_manager
         tmy = wm.tell_me_why_globals
+        prefs = bpy.context.preferences.addons[package_name].preferences
         node = context.active_node
-        formulas_enabled = trust_lib.is_trusted()
+        formulas_enabled = trust_lib.is_file_trusted()
 
         if self.disregard_node(context, layout, node):
             return
@@ -259,7 +256,7 @@ class TellMeWhyNPanel(Panel):
         if node != last_seen_node:
             last_seen_node = node
             tmy.socket_states.clear()
-            tmy.show_unexplained = False
+            tmy.show_unexplained = prefs.start_expanded
             for socket in node.inputs:
                 socket_state = tmy.socket_states.add()
                 socket_state['edit_mode'] = False

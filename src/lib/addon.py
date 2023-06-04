@@ -2,6 +2,7 @@ import bpy
 from bpy.types import Operator, Menu
 from typing import Callable, Type
 from types import ModuleType
+from . import util
 
 from hashlib import md5
 
@@ -9,10 +10,6 @@ from hashlib import md5
 This library contains helper functions useful in setup and management of Blender addons.
 It is required by the __init__.py, so don't remove it unless you fix dependencies.
 """
-
-
-def m(string):
-    return md5(str(string).encode('utf-8')).hexdigest()
 
 
 class SimpleMenu(Menu):
@@ -86,3 +83,17 @@ def register_menus(menus: list[tuple[str, Callable]]):
 def unregister_menus(menus: list[tuple[str, Callable]]):
     for m in menus[::-1]:
         getattr(bpy.types, m[0]).remove(m[1])
+
+
+def multiline_label(context, layout: bpy.types.UILayout = None, text: str = None, icon: str = None, omit_empty: bool = False) -> None:
+        if omit_empty and not text:
+            return
+        blank_icon = {"icon": "BLANK1"} if icon else {}
+        icon = {"icon": icon} if icon else {}
+
+        container = layout.column()
+        container.scale_y = 0.8
+        lines = util.wordwrap(text, context.region.width / 10)
+        container.label(text=lines[0], **icon)
+        for line in lines[1:]:
+            lbl = container.label(text=line, **blank_icon)
