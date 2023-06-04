@@ -9,6 +9,9 @@ class SocketState(bpy.types.PropertyGroup):
 class TellMeWhyGlobals(bpy.types.PropertyGroup):
     socket_states: bpy.props.CollectionProperty(type=SocketState)
     show_unexplained: bpy.props.BoolProperty(default=False)
+    trust_session: bpy.props.BoolProperty(default=False)
+    no_formulas_on_load: bpy.props.BoolProperty(default=False)
+    trusted_file_hash: bpy.props.StringProperty()
 
 
 WM_PROPS: dict[str, tuple[bpy.types.AnyType, dict[str, any]]] = {

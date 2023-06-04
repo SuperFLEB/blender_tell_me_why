@@ -59,3 +59,7 @@ Value has been changed
 [ Show all formulas ][ Trust this file ]
 ==========================================================
 
+
+
+NOTES:
+- You shouldn't be able to trust a file with no formulas in it. That'd mean that any file with no formulas automatically gets trusted.
