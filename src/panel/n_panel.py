@@ -9,8 +9,9 @@ from ..lib import addon as addon_lib
 from ..lib import util
 
 package_name = pkginfo.package_name()
+icon_value = addon_lib.icon_value
 
-if "_LOADED" in locals():
+if 1 or "_LOADED" in locals():
     import importlib
 
     for mod in (explanation_op, node_lib, formula_lib, trust_lib, addon_lib, util):  # list all imports here
@@ -32,7 +33,7 @@ icons = {
     "description": "INFO",
     "edit_mode": "GREASEPENCIL",
     "error": "ERROR",
-    "formula": "DRIVER_TRANSFORM",
+    "formula": "icon_formula",
     "node_value": "NODE",
     "remove": "X",
     "security": "DECORATE_LOCKED"
@@ -192,7 +193,7 @@ class TellMeWhyNPanel(Panel):
 
             if edit_mode:
                 formula_layout = component_layout.split(factor=0.2, align=True)
-                formula_layout.prop(data=component, property="use_formula", text="", icon=icons["formula"])
+                formula_layout.prop(data=component, property="use_formula", text="", icon_value=icon_value(icons['formula']))
 
                 if component.use_formula:
                     formula_layout.prop(data=component, property="formula", text="")
@@ -211,7 +212,7 @@ class TellMeWhyNPanel(Panel):
                 else:
                     formula_layout.label(text=util.format_prop_value(component_current_value))
             else:
-                component_layout.label(text=util.format_prop_value(component_formula), icon=icons['formula'] if component.use_formula else icons['node_value'])
+                component_layout.label(text=util.format_prop_value(component_formula), icon_value=icon_value(icons['formula' if component.use_formula else 'node_value']))
 
         has_rgba_formulas = False
         formula_failed_to_evaluate = False
