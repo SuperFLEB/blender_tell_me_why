@@ -56,6 +56,8 @@ registerable_handler_modules = [
 
 
 def register() -> None:
+    addon.register_icons()
+
     for c in addon.get_registerable_classes(registerable_modules):
 
         # Attempt to clean up if the addon broke during registration.
@@ -107,6 +109,8 @@ def unregister() -> None:
                 c.post_unregister()
         except RuntimeError:
             pass
+
+    addon.register_icons()
 
 
 if __name__ == "__main__":
