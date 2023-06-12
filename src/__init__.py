@@ -3,6 +3,7 @@ import bpy
 from .lib import addon
 from .operator import explanation
 from .operator import trust as trust_op
+from .operator import trusted_list as trusted_list_op
 from .panel import preferences as preferences_panel
 from .panel import n_panel
 from .menu import file_trust_submenu
@@ -12,7 +13,7 @@ from .handler import trust as trust_handlers
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (wm_props, addon, explanation, preferences_panel, n_panel, trust_op, file_trust_submenu, trust_handlers):  # list all imports here
+    for mod in (wm_props, addon, explanation, preferences_panel, n_panel, trust_op, file_trust_submenu, trust_handlers, trusted_list_op):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -45,6 +46,7 @@ registerable_modules = [
     wm_props,
     explanation,
     trust_op,
+    trusted_list_op,
     preferences_panel,
     n_panel,
     file_trust_submenu

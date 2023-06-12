@@ -1,6 +1,7 @@
 import bpy
 from bpy.types import Panel, UILayout, NodeSocket, NodeInternal
 from ..operator import explanation as explanation_op
+from ..menu import file_trust_submenu
 from ..lib import pkginfo
 from ..lib import node as node_lib
 from ..lib import formula as formula_lib
@@ -174,6 +175,7 @@ class TellMeWhyNPanel(Panel):
             return
 
         self.draw_split_button(context, socket_layout, socket, explanation, edit_mode)
+
         components = explanation.components if explanation.split_components else [explanation.components[0]]
         component_labels = self.get_component_labels(context, socket, explanation)
         evaluations = self.evaluate_socket_formulas(explanation, socket, node)
@@ -206,7 +208,13 @@ class TellMeWhyNPanel(Panel):
                         else:
                             result_layout.label(icon=icons["error"], text="Value Not Applied")
                     elif isinstance(comp_eval['error'], formula_lib.TrustProblemException):
-                        result_layout.label(icon=icons["security"], text="Untrusted: Evaluation Disabled")
+                        trust_button_layout = result_layout.split(factor=0.2, align=True)
+                        trust_button_layout.menu(
+                            file_trust_submenu.FileTrustSubmenu.bl_idname,
+                            icon=icons["security"],
+                            text=""
+                        )
+                        trust_button_layout.label(text="Untrusted: Evaluation Disabled")
                     else:
                         result_layout.label(icon=icons["error"], text="Missing/Invalid Formula")
                 else:

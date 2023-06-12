@@ -5,11 +5,12 @@ from bpy.props import StringProperty, IntProperty
 from ..lib import pkginfo
 from ..lib import addon as addon_lib
 from ..lib import util
+from ..operator import trusted_list
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (pkginfo, addon_lib, util,):  # list all imports here
+    for mod in (pkginfo, addon_lib, util, trusted_list,):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -57,6 +58,8 @@ class TrustHashesUIList(UIList):
         time_display = datetime.datetime.fromtimestamp(int(item.timestamp), datetime.timezone.utc).astimezone().strftime("%x %X") if timestamp else "<no timestamp>"
         layout.label(text=time_display)
 
+    def draw_filter(self, context, layout):
+        pass
 
 class TellMeWhyPrefsPanel(bpy.types.AddonPreferences):
     bl_idname = package_name
@@ -95,6 +98,7 @@ class TellMeWhyPrefsPanel(bpy.types.AddonPreferences):
         layout = self.layout
         layout.prop(self, 'start_expanded')
         layout.prop(self, 'enable_trusted_formulas')
+
         self.layout.template_list(
             listtype_name=TrustHashesUIList.bl_idname,
             list_id=TrustHashesUIList.bl_idname + "@Preferences",
@@ -105,6 +109,11 @@ class TellMeWhyPrefsPanel(bpy.types.AddonPreferences):
             rows=3,
             sort_lock=True
         )
+
+        layout.operator(trusted_list.TrustListDelete.bl_idname)
+        if not bpy.context.preferences.use_preferences_save:
+            layout.label(text="Be sure to Save Preferences, or changes to this list will not be saved", icon="PREFERENCES")
+
         layout.prop(self, 'trust_all')
         if self.trust_all:
             addon_lib.multiline_label(context, layout, text="While care has been taken to prevent malicious formulas from having any effect, bugs may still be a possibility, and running untrusted formulas may be unsafe", icon="ERROR")
