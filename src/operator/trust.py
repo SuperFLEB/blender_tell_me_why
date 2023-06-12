@@ -21,7 +21,7 @@ _LOADED = True
 
 
 class TrustSession(Operator):
-    """Initialize Tell Me Why data for a given node"""
+    """Set a local (WindowManager) property trusting the file for this session"""
     bl_idname = "tell_me_why.trust_session"
     bl_label = "Trust this file for now"
     bl_description = "Trust TMY formulas in this file now, but ask again after the file is closed or reloaded"
@@ -51,6 +51,39 @@ class TrustSession(Operator):
         try:
             trust_lib.trust_session()
             return {'FINISHED'}
+        except trust_lib.AllTrustDisabledException:
+            self.report({'ERROR'}, 'Formulas and trust features have been disabled. Cannot trust the file.')
+            return {'CANCELLED'}
+
+
+class UntrustSession(Operator):
+    """Remove trust for this session if it was not granted permanently"""
+    bl_idname = "tell_me_why.untrust_session"
+    bl_label = "Stop Trusting This File for Now"
+    bl_description = "Trust TMY formulas in this file now, but ask again after the file is closed or reloaded"
+    bl_options = set()
+
+    @classmethod
+    def poll(cls, context):
+        is_trusted = trust_lib.is_file_trusted()
+        trust_reason = trust_lib.get_trust_reason()
+        if is_trusted and trust_reason != "SESSION":
+            poll_messages = {
+                'UNTRUSTED': "The file is not trusted",
+                'ALL': "Trust has been enabled globally",
+                'CLEAN_LOAD': "The file initially contained no formulas",
+                'HASH': "This file was permanently trusted"
+            }
+            cls.poll_message_set(poll_messages.get(trust_reason, f"Trust Reason {trust_reason}"))
+            return False
+        return True
+
+    def execute(self, context) -> Set[str]:
+        try:
+            if trust_lib.forget_if_untrusted():
+                return {'FINISHED'}
+            self.report({'ERROR'}, "This file was permanently trusted")
+            return {'CANCELLED'}
         except trust_lib.AllTrustDisabledException:
             self.report({'ERROR'}, 'Formulas and trust features have been disabled. Cannot trust the file.')
             return {'CANCELLED'}
@@ -107,6 +140,8 @@ class TrustFile(Operator):
         return {'FINISHED'}
 
 
+# This is necessary because the trust list will only be saved if preferences are saved, but we want to honor the user's
+# "Auto Save Preferences" setting and not save without them knowing if that's turned off.
 class ConfirmTrustFile(Operator):
     bl_idname = "tell_me_why.confirm_trust_file"
     bl_label = "Generate Formula Report"
@@ -198,4 +233,4 @@ class LaunchAddonPrefs(Operator):
         return {'FINISHED'}
 
 
-REGISTER_CLASSES = [TrustSession, TrustFile, ConfirmTrustFile, ReportFormulas, LaunchAddonPrefs]
+REGISTER_CLASSES = [TrustSession, UntrustSession, TrustFile, ConfirmTrustFile, ReportFormulas, LaunchAddonPrefs]

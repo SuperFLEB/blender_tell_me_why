@@ -105,8 +105,8 @@ def hash_formulas():
 def get_trust_identity():
     prefs = bpy.context.preferences.addons[package_name].preferences
     if not prefs.get('trust_identity', None):
-        prefs['trust_identity'] = secrets.token_urlsafe(64)
-    return prefs['trust_identity']
+        prefs.trust_identity = secrets.token_urlsafe(64)
+    return prefs.trust_identity
 
 
 def is_file_trusted(only_explicit_trust: bool = False) -> bool:
@@ -171,6 +171,32 @@ def trust_if_known() -> bool:
         if th.formula_hash == hashed:
             tmy.trusted_file_hash = th.formula_hash
             return True
+    return False
+
+
+def forget_if_untrusted() -> bool:
+    """Revoke the temporary trust if the file is not permanently trusted.
+       Returns a bool indicating whether trust was revoked by the operation (so if it's True, the current file is NOT
+       trusted any more)"""
+    prefs = bpy.context.preferences.addons[package_name].preferences
+    tmy = bpy.context.window_manager.tell_me_why_globals
+    if tmy.trust_session is not True:
+        print(f"Did not revoke trust because Session Trust was not set")
+        return False
+    print(f"Revoking session trust")
+    tmy.trust_session = False
+    return True
+
+
+
+def forget_if_hash(trusted_file_hash: str) -> bool:
+    """Revoke the temporary trust if the given hash matches the temporary trust hash. Used to re-evaluate the open file
+       after a trusted file has been removed from the hashes list. Returns a bool indicating whether trust was revoked
+       by the operation (so if it's True, the current file is NOT trusted any more)"""
+    tmy = bpy.context.window_manager.tell_me_why_globals
+    if tmy.trusted_file_hash == trusted_file_hash:
+        tmy.trusted_file_hash = ""
+        return True
     return False
 
 
