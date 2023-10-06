@@ -1,19 +1,15 @@
 from typing import Callable
 import bpy
 from .lib import addon
+from .props import wm_props, explanation as explanation_props
 from .operator import explanation
-from .operator import trust as trust_op
-from .operator import trusted_list as trusted_list_op
 from .panel import preferences as preferences_panel
 from .panel import n_panel
-from .menu import file_trust_submenu
-from .props import wm_props
-from .handler import trust as trust_handlers
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (wm_props, addon, explanation, preferences_panel, n_panel, trust_op, file_trust_submenu, trust_handlers, trusted_list_op):  # list all imports here
+    for mod in (wm_props, addon, explanation, preferences_panel, n_panel, explanation_props):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -26,7 +22,7 @@ bl_info = {
     "version": (0, 0, 1),
     "blender": (3, 4, 0),
     "location": "Node Editor",
-    "warning": "", # used for warning icon and text in addons panel
+    "warning": "",  # used for warning icon and text in addons panel
     "doc_url": "https://github.com/SuperFLEB/blender_tell_me_why",
     "tracker_url": "https://github.com/SuperFLEB/blender_tell_me_why/issues",
     "support": "COMMUNITY",
@@ -36,41 +32,42 @@ bl_info = {
     "category": "Node",
 }
 
-
 menus: list[tuple[str, Callable]] = [
-    ("TOPBAR_MT_file", addon.menuitem(file_trust_submenu.FileTrustSubmenu)),
+    ("TOPBAR_MT_file", addon.menuitem(explanation.ApplyAllFormulas)),
 ]
 
 # Registerable modules have a REGISTER_CLASSES list that lists all registerable classes in the module
 registerable_modules = [
-    wm_props,
-    explanation,
-    trust_op,
-    trusted_list_op,
+    # preferences_panel MUST be registered before n_panel
     preferences_panel,
-    n_panel,
-    file_trust_submenu
+    wm_props,
+    explanation_props,
+    explanation,
+    n_panel
 ]
 
-registerable_handler_modules = [
-    trust_handlers
-]
+registerable_handler_modules = []
 
 
 def register() -> None:
     addon.register_icons()
 
     for c in addon.get_registerable_classes(registerable_modules):
-
         # Attempt to clean up if the addon broke during registration.
         try:
             bpy.utils.unregister_class(c)
         except RuntimeError:
             pass
+
         bpy.utils.register_class(c)
         if hasattr(c, 'post_register') and callable(c.post_register):
             c.post_register()
+
         print(f"{bl_info['name']} registered class:", c)
+
+        # Once we've registered the prefs, we can set the n-panel's "bl_category" before that's registered
+        if c is preferences_panel.TellMeWhyPrefsPanel:
+            n_panel.set_panel_category_from_prefs()
 
     for c in registerable_handler_modules:
         if hasattr(c, 'REGISTER_HANDLERS'):
@@ -78,7 +75,6 @@ def register() -> None:
                 for h in handlers:
                     print(f"{bl_info['name']} registered {event_type} handler", h)
                     getattr(bpy.app.handlers, event_type).append(h)
-
 
     for prop_name, prop_def in wm_props.WM_PROPS.items():
         print(f"{bl_info['name']} registered WM property: ", prop_name)

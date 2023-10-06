@@ -110,6 +110,7 @@ def edit_mode_prop(edit_mode: bool, parent: bpy.types.UILayout, data: bpy.types.
 
 
 def compare(a, b, float_precision: float = 0.00001):
+    """Returns true if a and b's elements are all equal, to within float_precision"""
     if type(a) is str:
         return a == b
     if hasattr(a, "__len__") != hasattr(b, "__len__"):
@@ -135,3 +136,7 @@ def compare_vectors(a, b, float_precision: float = 0.00001):
             if ac != bc:
                 return False
     return True
+
+
+def pixels_to_percent(pixels: int) -> float:
+    return 1.0
