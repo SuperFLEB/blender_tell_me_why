@@ -1,6 +1,6 @@
 import bpy
 from bpy.types import Operator, NodeSocket, PropertyGroup
-from bpy.props import PointerProperty, StringProperty, BoolProperty, FloatProperty, IntProperty, CollectionProperty
+from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, CollectionProperty
 
 def set_split_components(self, value):
     # Collapse existing formulas to a tuple if we are turning off split_components and all are used

@@ -108,7 +108,7 @@ def unregister() -> None:
         except RuntimeError:
             pass
 
-    addon.register_icons()
+    addon.unregister_icons()
 
 
 if __name__ == "__main__":

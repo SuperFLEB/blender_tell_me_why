@@ -24,47 +24,6 @@ def wordwrap(string: str, length: int) -> list[str]:
     return lines
 
 
-def get_collection_of_object(obj: bpy.types.Object, default_to_context: bool = True) -> bpy.types.Collection | None:
-    """Get the enclosing collection of an Object (caveat: if the object is not in the active scene, this may break)"""
-
-    # If there's only one, return that...
-    candidates = [c for c in obj.users_collection]
-
-    if len(candidates) == 0:
-        return bpy.context.scene.collection if default_to_context else None
-
-    if len(candidates) == 1:
-        return candidates[0]
-
-    # If there are more than one, but one isn't in the current Scene
-    # (e.g., it's a RigidBodyWorld), return the first that isn't...
-    scene_collections = [bpy.context.scene.collection] + list(bpy.context.scene.collection.children_recursive)
-    candidates = [c for c in candidates if c in scene_collections]
-    if len(candidates) > 0:
-        return candidates[0]
-
-    # Return the first collection from anywhere
-    return obj.users_collection[0]
-
-
-def get_operator_defaults(operator_instance) -> dict[str, any]:
-    """Scan annotations on the given instance and all parent classes to find default operator values"""
-    defaults = {}
-    for cls in [type(operator_instance)] + list(type(operator_instance).__mro__):
-        for note_name, note in getattr(cls, '__annotations__', {}).items():
-            if hasattr(note, "keywords") and "default" in note.keywords:
-                defaults[note_name] = note.keywords["default"]
-    return defaults
-
-
-def reset_operator_defaults(operator_instance, keys: Iterable[str]) -> None:
-    """Reset some of an operator's properties to their defaults"""
-    defaults = get_operator_defaults(operator_instance)
-    for key in keys:
-        if key in defaults:
-            setattr(operator_instance, key, defaults[key])
-
-
 def uilist_sort(items: list[any], make_sortable_fn: Callable[[any], any] = lambda value: value) -> list[int]:
     """Given an unsorted list and a normalizing function, generates a list of movement directives in the form that
     UIList sorting requires."""
@@ -95,18 +54,9 @@ def format_prop_value(value, float_decimals: int = 3):
         return value
 
     if hasattr(value, '__len__') and len(value) > 1:
-        return ("(" + ", ".join([format_prop_value(v) for v in value]) + ")")
+        return "(" + ", ".join([format_prop_value(v) for v in value]) + ")"
 
     return numstr(value)
-
-
-def edit_mode_prop(edit_mode: bool, parent: bpy.types.UILayout, data: bpy.types.AnyType, property: str, label: str, label_options: dict = None, prop_options: dict = None, label_text_parser: Callable[[any], str] = lambda val: str(val), dict_object: bool = False):
-    if edit_mode:
-        value = label_text_parser(data.get(property) if dict_object else data.getattr(property))
-        prop_label_layout = parent.row()
-        prop_label_layout.label(text=label)
-        prop_label_layout.label(text=value, **(label_options if label_options else {}))
-    return parent.prop(data=data, property=property, **(prop_options if prop_options else {}))
 
 
 def compare(a, b, float_precision: float = 0.00001):
@@ -136,7 +86,3 @@ def compare_vectors(a, b, float_precision: float = 0.00001):
             if ac != bc:
                 return False
     return True
-
-
-def pixels_to_percent(pixels: int) -> float:
-    return 1.0

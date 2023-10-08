@@ -18,44 +18,6 @@ icons = {}
 _builtin_icons = {ei.name: ei.value for ei in bpy.types.UILayout.bl_rna.functions["prop"].parameters["icon"].enum_items}
 
 
-class SimpleMenu(Menu):
-    # If the menu item needs its own operator context, use a tuple of (OperatorClass, "context")
-    items: list[Operator | Menu | str | None | tuple[Operator, str]] = []
-    operator_context: str = "INVOKE_REGION_WIN"
-
-    def draw(self, context) -> None:
-        self.layout.operator_context = self.operator_context
-
-        for item in self.items:
-            layout = self.layout
-            layout.operator_context = self.operator_context
-
-            if item is None:
-                layout.separator()
-                continue
-            if type(item) is str:
-                layout.label(text=item)
-                continue
-
-            if type(item) is tuple:
-                if len(item) == 2 and issubclass(item[0], Operator) and type(item[1]) is str:
-                    layout = layout.column()
-                    layout.operator_context = item[1]
-                    item = item[0]
-                else:
-                    print("(!) Bad tuple in SimpleMenu: ", item)
-
-            if (not hasattr(item, 'can_show')) or item.can_show(context):
-                if issubclass(item, bpy.types.Menu):
-                    layout.menu(item.bl_idname)
-                    continue
-                if issubclass(item, bpy.types.Operator):
-                    layout.operator(item.bl_idname)
-                    continue
-
-            print("(!) Unknown menu item type in SimpleMenu: ", item)
-
-
 def menuitem(cls: bpy.types.Operator | bpy.types.Menu, operator_context: str = "EXEC_DEFAULT") -> Callable:
     if issubclass(cls, bpy.types.Operator):
         def operator_fn(self, context):

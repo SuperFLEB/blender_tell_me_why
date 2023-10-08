@@ -114,29 +114,6 @@ class TellMeWhyPanel(Panel):
         else:
             return [f"{socket.name} ({node_lib.socket_type_label(socket)})"]
 
-    def evaluate_socket_formulas(self, explanation, socket, node) -> list[dict[str, str]]:
-        components = explanation.components if explanation.split_components else [explanation.components[0]]
-        value_len = len(socket.default_value) if hasattr(socket.default_value, "__len__") else 1
-        evaluations = []
-
-        for c_idx, component in enumerate(components):
-            value = socket.default_value[c_idx] if explanation.split_components else socket.default_value
-            if not component.use_formula:
-                evaluations.append({"value": value, "result": value, "match": True, "error": False})
-                continue
-
-            expect_len = 1 if explanation.split_components else value_len
-            try:
-                result = formula_lib.eval_formula(component.formula, node, expect_len=expect_len,
-                                                  extend_to_expected=True)
-                error = False
-            except formula_lib.FormulaExecutionException as e:
-                evaluations.append({"value": value, "result": None, "match": False, "error": e})
-                continue
-
-            evaluations.append({"value": value, "result": result, "match": util.compare(value, result), "error": error})
-        return evaluations
-
     def draw_socket_explanation(self, context, layout: UILayout, socket: NodeSocket,
                                 socket_index: int, tmy):
 
@@ -202,7 +179,7 @@ class TellMeWhyPanel(Panel):
                     elif evaluated.is_index_matching(c_idx):
                         result_layout.label(icon=icons["check"], text="Value Applied")
                     else:
-                        result_layout.label(icon=icons["error"], text="Value Not Applied")
+                        result_layout.label(icon_value=icon_value(icons["mismatch"]), text="Value Not Applied")
                 else:
                     formula_layout.label(text=util.format_prop_value(component_current_value))
             else:
