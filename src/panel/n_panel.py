@@ -32,6 +32,7 @@ icons = {
     "error": "ERROR",
     "formula": "icon_formula",
     "bad_formula": "ERROR",
+    "mismatch": "icon_not_equal",
     "node_value": "NODE",
     "remove": "X",
     "security": "DECORATE_LOCKED"
@@ -207,10 +208,12 @@ class TellMeWhyPanel(Panel):
             else:
                 if not component.use_formula:
                     icon_id = icons["node_value"]
+                elif evaluated.is_error(c_idx):
+                    icon_id = icons["bad_formula"]
                 elif evaluated.is_index_matching(c_idx):
                     icon_id = icons["formula"]
                 else:
-                    icon_id = icons["bad_formula"]
+                    icon_id = icons["mismatch"]
 
                 component_layout.label(text=util.format_prop_value(component_formula), icon_value=icon_value(icon_id))
 
