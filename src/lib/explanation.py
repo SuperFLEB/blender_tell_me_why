@@ -38,7 +38,7 @@ class Evaluation:
         if not self._split_components:
             if not explanation.components[0].use_formula:
                 self._results = self._values
-                self._formulas = ('',) * len(self._values)
+                self._formulas = ("",) * len(self._values)
                 self._matches = (True,) * len(self._values)
                 return
 
@@ -69,7 +69,7 @@ class Evaluation:
         """Evaluate the formula and store the results or the error state"""
         self._formulas += (formula,)
 
-        if formula == '':
+        if formula == "":
             self._results += (0.0,) * expect_len
             self._errors += (True,) * expect_len
             return
@@ -145,20 +145,20 @@ def find_formula_sockets():
     # because the user cannot verify them.
 
     node_locations = {
-        "nodes": ['node_groups'],
-        "node_tree.nodes": ['materials', 'lights', 'scenes'],
+        "nodes": ["node_groups"],
+        "node_tree.nodes": ["materials", "lights", "scenes"],
     }
 
     sockets = set()
 
-    for loc in node_locations['nodes']:
+    for loc in node_locations["nodes"]:
         for thing in getattr(bpy.data, loc, []):
             for node in thing.nodes:
                 sockets |= {socket for socket in node.inputs if _has_formula(socket)}
 
-    for loc in node_locations['node_tree.nodes']:
+    for loc in node_locations["node_tree.nodes"]:
         for thing in getattr(bpy.data, loc, []):
-            if hasattr(thing, 'node_tree') and hasattr(thing.node_tree, 'nodes') and len(thing.node_tree.nodes):
+            if hasattr(thing, "node_tree") and hasattr(thing.node_tree, "nodes") and len(thing.node_tree.nodes):
                 for node in thing.node_tree.nodes:
                     sockets |= {socket for socket in node.inputs if _has_formula(socket)}
 

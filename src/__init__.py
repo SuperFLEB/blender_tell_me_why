@@ -60,7 +60,7 @@ def register() -> None:
             pass
 
         bpy.utils.register_class(c)
-        if hasattr(c, 'post_register') and callable(c.post_register):
+        if hasattr(c, "post_register") and callable(c.post_register):
             c.post_register()
 
         print(f"{bl_info['name']} registered class:", c)
@@ -70,7 +70,7 @@ def register() -> None:
             n_panel.set_panel_category_from_prefs()
 
     for c in registerable_handler_modules:
-        if hasattr(c, 'REGISTER_HANDLERS'):
+        if hasattr(c, "REGISTER_HANDLERS"):
             for event_type, handlers in c.REGISTER_HANDLERS.items():
                 for h in handlers:
                     print(f"{bl_info['name']} registered {event_type} handler", h)
@@ -89,7 +89,7 @@ def unregister() -> None:
         delattr(bpy.types.WindowManager, prop_name)
 
     for c in registerable_handler_modules:
-        if hasattr(c, 'REGISTER_HANDLERS'):
+        if hasattr(c, "REGISTER_HANDLERS"):
             for event_type, handlers in c.REGISTER_HANDLERS.items():
                 for h in handlers:
                     print(f"{bl_info['name']} unregistered {event_type} handler", h)
@@ -103,7 +103,7 @@ def unregister() -> None:
     for c in addon.get_registerable_classes(registerable_modules)[::-1]:
         try:
             bpy.utils.unregister_class(c)
-            if hasattr(c, 'post_unregister') and callable(c.post_unregister):
+            if hasattr(c, "post_unregister") and callable(c.post_unregister):
                 c.post_unregister()
         except RuntimeError:
             pass

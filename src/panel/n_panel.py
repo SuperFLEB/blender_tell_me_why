@@ -43,18 +43,18 @@ last_seen_node = None
 
 
 class TellMeWhyPanel(Panel):
-    bl_idname = 'NODE_PT_tell_me_why'
-    bl_category = 'Tell Me Why'
-    bl_label = 'Tell Me Why'
-    bl_space_type = 'NODE_EDITOR'
-    bl_region_type = 'UI'
+    bl_idname = "NODE_PT_tell_me_why"
+    bl_category = "Tell Me Why"
+    bl_label = "Tell Me Why"
+    bl_space_type = "NODE_EDITOR"
+    bl_region_type = "UI"
 
     def disregard_node(self, context, layout: bpy.types.UILayout, node: bpy.types.NodeInternal):
         if not (node and node.select):
             layout.label(text="No node selected")
             return True
 
-        if not getattr(node, 'inputs', None):
+        if not getattr(node, "inputs", None):
             layout.label(text="Node has no inputs")
             return True
 
@@ -78,71 +78,76 @@ class TellMeWhyPanel(Panel):
             addon_lib.multiline_label(context, layout, text=socket.explanation.description, icon=icons["description"])
 
     def draw_unexplained_socket(self, context, layout, socket):
-        layout.context_pointer_set(name='operator_socket', data=socket)
+        layout.context_pointer_set(name="operator_socket", data=socket)
 
         layout.operator(
             explanation_op.CreateSocketExplanation.bl_idname,
             text="",
-            icon=icons['add']
+            icon=icons["add"]
         )
         layout.label(text=socket.name)
-        if hasattr(socket, 'default_value'):
+        if hasattr(socket, "default_value"):
             layout.label(text=util.format_prop_value(socket.default_value))
 
-    def draw_split_button(self, context, layout: UILayout, socket: NodeSocket,
-                          explanation: explanation_props.Explanation,
-                          edit_mode: bool):
-        component_count = len(node_lib.get_value_types(socket))
+    def draw_split_components_button(self, context, layout: UILayout, socket: NodeSocket,
+                                     explanation: explanation_props.Explanation,
+                                     edit_mode: bool):
+        """Draw the "Split Components" button if one is necessary"""
+
+        if not (len(node_lib.get_value_types(socket)) < 1 and edit_mode):
+            return
+
         abbr_map = {
             socket.type: "",
-            'VECTOR': 'XYZ',
-            'RGBA': 'RGBA'
+            "VECTOR": "XYZ",
+            "RGBA": "RGBA"
         }
-        if component_count > 1 and edit_mode:
-            label = f"Split {abbr_map[socket.type]} Components"
-            layout.prop(data=explanation, property='split_components', text=label, toggle=True)
+
+        label = f"Split {abbr_map[socket.type]} Components"
+        layout.prop(data=explanation, property="split_components", text=label, toggle=True)
 
     def get_component_labels(self, context, socket, explanation) -> list[str | tuple[str]]:
-        if explanation.split_components:
-            label_map = {
-                socket.type: [None for c in explanation.components],
-                'VECTOR': 'XYZ',
-                'RGBA': ('Red', 'Green', 'Blue', 'Alpha')
-            }[socket.type]
-            component_labels = [f"{lbl}" if lbl else socket.name for lbl in label_map]
-            return component_labels
-        else:
+        if not explanation.split_components:
             return [f"{socket.name} ({node_lib.socket_type_label(socket)})"]
+
+        label_map = {
+            "VECTOR": "XYZ",
+            "RGBA": ("Red", "Green", "Blue", "Alpha")
+        }.get(socket.type, None) or [f"{socket.name} ({node_lib.socket_type_label(socket)})"]
+
+
+        return [str(lbl) for lbl in label_map]
 
     def draw_socket_explanation(self, context, layout: UILayout, socket: NodeSocket,
                                 socket_index: int, tmy):
-
-        explanation = socket.explanation
-        socket_state = tmy.socket_states[socket_index]
-        edit_mode = socket_state['edit_mode']
 
         # Skip hidden and valueless sockets
         if not is_socket_explainable(socket):
             return
 
-        # Inactive socket: Show name and value
-        if not (hasattr(socket, 'explanation') and socket.explanation.active):
+        # Socket w/o active explanation: Show name and value
+        if not (hasattr(socket, "explanation") and socket.explanation.active):
             self.draw_unexplained_socket(context, layout.row(), socket)
             return
+
+        explanation = socket.explanation
+        socket_state = tmy.socket_states[socket_index]
+        edit_mode = socket_state["edit_mode"]
+
 
         # Active Socket
 
         ## Socket Layout
         socket_layout = layout.box()
-        socket_layout.context_pointer_set(name='operator_socket', data=socket)
+        socket_layout.context_pointer_set(name="operator_socket", data=socket)
 
         self.draw_socket_title(context, socket, tmy.socket_states[socket_index], socket_layout, edit_mode)
 
         # If the socket has no values, we can't set formulas, so skip that whole part
-        if not hasattr(socket, 'default_value'):
+        if not hasattr(socket, "default_value"):
             return
 
-        self.draw_split_button(context, socket_layout, socket, explanation, edit_mode)
+        self.draw_split_components_button(context, socket_layout, socket, explanation, edit_mode)
 
         components = explanation.components if explanation.split_components else [explanation.components[0]]
         component_labels = self.get_component_labels(context, socket, explanation)
@@ -168,7 +173,7 @@ class TellMeWhyPanel(Panel):
             if edit_mode:
                 formula_layout = component_layout.split(factor=0.2, align=True)
                 formula_layout.prop(data=component, property="use_formula", text="",
-                                    icon_value=icon_value(icons['formula']))
+                                    icon_value=icon_value(icons["formula"]))
 
                 if component.use_formula:
                     formula_layout.prop(data=component, property="formula", text="")
@@ -195,7 +200,7 @@ class TellMeWhyPanel(Panel):
                 component_layout.label(text=util.format_prop_value(component_formula), icon_value=icon_value(icon_id))
 
             if not evaluated.is_index_matching(c_idx) and not evaluated.is_error(c_idx):
-                component_layout.context_pointer_set(name='operator_socket', data=socket)
+                component_layout.context_pointer_set(name="operator_socket", data=socket)
                 apply_operator = component_layout.operator(
                     explanation_op.ApplyFormula.bl_idname,
                     text="Apply",
@@ -208,7 +213,7 @@ class TellMeWhyPanel(Panel):
         if has_rgba_formulas and not evaluated.has_errors():
             socket_state.rgba = evaluated.get_results()
             socket_color_layout = socket_layout.row(align=True)
-            socket_color_layout.label(text="", icon=icons['check'] if evaluated.is_matching() else icons['error'])
+            socket_color_layout.label(text="", icon=icons["check"] if evaluated.is_matching() else icons["error"])
             socket_color_layout.prop(text="", data=socket_state, property="rgba")
             socket_color_layout.prop(text="", data=socket, property="default_value")
 
@@ -231,14 +236,14 @@ class TellMeWhyPanel(Panel):
             tmy.show_unexplained = prefs.start_expanded
             for socket in node.inputs:
                 socket_state = tmy.socket_states.add()
-                socket_state['edit_mode'] = False
+                socket_state["edit_mode"] = False
 
         # If there are no explained sockets, hard-True "show_all" so the user sees the "Add" buttons
         has_explained_sockets = False
 
         socket: NodeSocket
         for socket in node.inputs:
-            if is_socket_explainable(socket) and hasattr(socket, 'explanation') and socket.explanation.active:
+            if is_socket_explainable(socket) and hasattr(socket, "explanation") and socket.explanation.active:
                 has_explained_sockets = True
                 layout.prop(data=tmy, property="show_unexplained", text="Show All / Add More", toggle=True)
                 break
@@ -247,7 +252,7 @@ class TellMeWhyPanel(Panel):
         socket: NodeSocket
         for s_idx, socket in enumerate(node.inputs):
             # Hide inactive sockets unless show_all is set
-            if not (show_all or (hasattr(socket, 'explanation') and socket.explanation.active)):
+            if not (show_all or (hasattr(socket, "explanation") and socket.explanation.active)):
                 continue
             self.draw_socket_explanation(context, layout, socket, s_idx, tmy)
 

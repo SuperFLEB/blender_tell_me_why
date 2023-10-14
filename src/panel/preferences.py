@@ -30,7 +30,7 @@ class TellMeWhyPrefsPanel(bpy.types.AddonPreferences):
 
     start_expanded: bpy.props.BoolProperty(
         name="Always show all sockets",
-        description='Show sockets you have not added explanations to when viewing a node, without needing to click '
+        description="Show sockets you have not added explanations to when viewing a node, without needing to click "
                     '"Show All/Add More"',
         default=False
     )
@@ -39,8 +39,8 @@ class TellMeWhyPrefsPanel(bpy.types.AddonPreferences):
         name="N-Panel location",
         description="Where should the Tell Me Why panel be located?",
         items=[
-            ("Tell Me Why", 'In a "Tell Me Why" tab', 'Put the panel in its own tab'),
-            ("Node", 'In the "Node" tab', 'Put the panel after other items in the Node tab'),
+            ("Tell Me Why", 'In a "Tell Me Why" tab', "Put the panel in its own tab"),
+            ("Node", 'In the "Node" tab', "Put the panel after other items in the Node tab"),
         ],
         get=get_location,
         set=set_location
@@ -48,8 +48,8 @@ class TellMeWhyPrefsPanel(bpy.types.AddonPreferences):
 
     def draw(self, context) -> None:
         layout = self.layout
-        layout.prop(self, 'start_expanded')
-        layout.prop(self, 'n_panel_location')
+        layout.prop(self, "start_expanded")
+        layout.prop(self, "n_panel_location")
 
 
 REGISTER_CLASSES = [TellMeWhyPrefsPanel]

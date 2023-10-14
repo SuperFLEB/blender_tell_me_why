@@ -17,16 +17,16 @@ class CreateSocketExplanation(Operator):
     """Initialize Tell Me Why data for a given node"""
     bl_idname = "tell_me_why.create_explanation"
     bl_label = "Create Tell Me Why Explanation"
-    bl_options = {'UNDO'}
+    bl_options = {"UNDO"}
 
     def execute(self, context) -> Set[str]:
         socket = context.operator_socket
         explanation = socket.explanation
 
         # Can't detail the value if there's no default value to detail
-        if not hasattr(socket, 'default_value'):
+        if not hasattr(socket, "default_value"):
             explanation.active = True
-            return {'FINISHED'}
+            return {"FINISHED"}
 
         types = node_lib.get_value_types(socket)
         explanation.active = bool(types)
@@ -35,19 +35,19 @@ class CreateSocketExplanation(Operator):
             val.description = ""
             val.type = t
             val.formula = ""
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class RemoveSocketExplanation(Operator):
     """Initialize Tell Me Why data for a given node"""
     bl_idname = "tell_me_why.remove_explanation"
     bl_label = "Remove Tell Me Why Explanation"
-    bl_options = {'UNDO'}
+    bl_options = {"UNDO"}
 
     def execute(self, context) -> Set[str]:
         socket = context.operator_socket
-        socket.property_unset('explanation')
-        return {'FINISHED'}
+        socket.property_unset("explanation")
+        return {"FINISHED"}
 
 
 def _update_socket(socket, index):
@@ -59,20 +59,20 @@ class ApplyFormula(Operator):
     """Initialize Tell Me Why data for a given node"""
     bl_idname = "tell_me_why.apply_formula"
     bl_label = "Apply Formula"
-    bl_options = {'UNDO'}
+    bl_options = {"UNDO"}
 
     component_index: IntProperty(name="component_index", default=0)
 
     def execute(self, context) -> Set[str]:
         context.operator_socket.default_value = _update_socket(context.operator_socket, self.component_index)
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class ApplyAllFormulas(Operator):
     """Apply all formulas in the file"""
     bl_idname = "tell_me_why.apply_all"
     bl_label = "Apply All Formulas"
-    bl_options = {'UNDO'}
+    bl_options = {"UNDO"}
 
     def execute(self, context) -> Set[str]:
         sockets = explanation_lib.find_formula_sockets()
@@ -89,7 +89,7 @@ class ApplyAllFormulas(Operator):
         else:
             self.report({"INFO"}, "No formulas updated")
 
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 REGISTER_CLASSES = [CreateSocketExplanation, RemoveSocketExplanation, ApplyFormula, ApplyAllFormulas]

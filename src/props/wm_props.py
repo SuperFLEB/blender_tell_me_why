@@ -12,7 +12,7 @@ class TellMeWhyGlobals(bpy.types.PropertyGroup):
 
 
 WM_PROPS: dict[str, tuple[bpy.types.AnyType, dict[str, any]]] = {
-    'tell_me_why_globals': (bpy.props.PointerProperty, {"type": TellMeWhyGlobals}),
+    "tell_me_why_globals": (bpy.props.PointerProperty, {"type": TellMeWhyGlobals}),
 }
 
 REGISTER_CLASSES = [SocketState, TellMeWhyGlobals]

@@ -103,5 +103,5 @@ class UIListSortTest(unittest.TestCase):
         self.assertEqual(util.uilist_sort(provided, make_sortable_fn), expected)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

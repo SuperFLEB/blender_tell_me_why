@@ -11,7 +11,7 @@ def flatten(list_of_lists: list[list[any]]) -> list[any]:
 
 def wordwrap(string: str, length: int) -> list[str]:
     """Word wrap a string to the given length"""
-    words = [word for word in re.split(' +', string) if word]
+    words = [word for word in re.split(" +", string) if word]
     if not words: return [""]
     lines = [f"{words[0]} "]
     if len(words) > 1:
@@ -53,7 +53,7 @@ def format_prop_value(value, float_decimals: int = 3):
     if type(value) is str:
         return value
 
-    if hasattr(value, '__len__') and len(value) > 1:
+    if hasattr(value, "__len__") and len(value) > 1:
         return "(" + ", ".join([format_prop_value(v) for v in value]) + ")"
 
     return numstr(value)

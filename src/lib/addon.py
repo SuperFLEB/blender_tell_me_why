@@ -22,7 +22,7 @@ def menuitem(cls: bpy.types.Operator | bpy.types.Menu, operator_context: str = "
     if issubclass(cls, bpy.types.Operator):
         def operator_fn(self, context):
             self.layout.operator_context = operator_context
-            if (not hasattr(cls, 'can_show')) or cls.can_show(context):
+            if (not hasattr(cls, "can_show")) or cls.can_show(context):
                 self.layout.operator(cls.bl_idname)
         return operator_fn
     if issubclass(cls, bpy.types.Menu):
@@ -36,7 +36,7 @@ def menuitem(cls: bpy.types.Operator | bpy.types.Menu, operator_context: str = "
 def get_registerable_classes(registerable_modules: list[ModuleType]) -> list[Type]:
     module_classes = [m.REGISTER_CLASSES for m in registerable_modules if hasattr(m, "REGISTER_CLASSES")]
     if len(module_classes) < len(registerable_modules):
-        print("(!) Some modules did not contain valid REGISTER_CLASSES arrays: ", [m.__name__ for m in registerable_modules if not hasattr(m, 'REGISTER_CLASSES')])
+        print("(!) Some modules did not contain valid REGISTER_CLASSES arrays: ", [m.__name__ for m in registerable_modules if not hasattr(m, "REGISTER_CLASSES")])
     flat_classes = [c for mc in module_classes for c in mc]
     # Deduplicate and preserve order using the Python 3.7+ fact that dicts keep insertion order
     dedupe_classes = list(dict.fromkeys(flat_classes))
@@ -70,10 +70,10 @@ def multiline_label(context, layout: bpy.types.UILayout = None, text: str = None
 def register_icons():
     global _icons, icons
     _icons = bpy.utils.previews.new()
-    icon_files = Path(__file__).parents[1].joinpath('icons').glob('*.png')
+    icon_files = Path(__file__).parents[1].joinpath("icons").glob("*.png")
     for icon_file in icon_files:
         stem = icon_file.stem
-        new_icon = _icons.load(stem, str(icon_file), 'IMAGE')
+        new_icon = _icons.load(stem, str(icon_file), "IMAGE")
         icons[stem] = new_icon.icon_id
         print(f"Registering icon: {stem} (ID {icons[stem]} as {icon_file}")
 

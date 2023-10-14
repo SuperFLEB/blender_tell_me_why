@@ -4,23 +4,23 @@ from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, 
 
 def set_split_components(self, value):
     # Collapse existing formulas to a tuple if we are turning off split_components and all are used
-    if not (value or [c for c in self.components if not (c and c['use_formula'])]):
-        formulas = [c['formula'] for c in self.components]
+    if not (value or [c for c in self.components if not (c and c["use_formula"])]):
+        formulas = [c["formula"] for c in self.components]
         for c in self.components[1:]:
-            c['formula'] = ""
-            c['description'] = ""
-            c['use_formula'] = False
-        self.components[0]['formula'] = f"({', '.join(formulas)})"
+            c["formula"] = ""
+            c["description"] = ""
+            c["use_formula"] = False
+        self.components[0]["formula"] = f"({', '.join(formulas)})"
     else:
         for c in self.components:
-            c['formula'] = ""
-            c['description'] = ""
-            c['use_formula'] = False
-    self['split_components'] = value
+            c["formula"] = ""
+            c["description"] = ""
+            c["use_formula"] = False
+    self["split_components"] = value
 
 
 def get_split_components(self):
-    return self.get('split_components', False)
+    return self.get("split_components", False)
 
 
 class ComponentValueExplanation(PropertyGroup):

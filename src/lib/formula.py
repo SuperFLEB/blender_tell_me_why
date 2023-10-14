@@ -32,15 +32,15 @@ def formula_accessible_globals() -> dict[str, any]:
         "functions": {},
     }
     # Math methods from the "math" module
-    math_methods = ('acos', 'acosh', 'asin', 'asinh', 'atan', 'atan2', 'atanh', 'ceil', 'comb', 'copysign', 'cos',
-                    'cosh', 'degrees', 'dist', 'erf', 'erfc', 'exp', 'expm1', 'fabs', 'factorial', 'floor', 'fmod',
-                    'frexp', 'fsum', 'gamma', 'gcd', 'hypot', 'inf', 'isclose', 'isfinite', 'isinf', 'isnan', 'isqrt',
-                    'lcm', 'ldexp', 'lgamma', 'log', 'log10', 'log1p', 'log2', 'modf', 'nan', 'nextafter', 'perm', 'pi',
-                    'pow', 'prod', 'radians', 'remainder', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'tau', 'trunc', 'ulp')
+    math_methods = ("acos", "acosh", "asin", "asinh", "atan", "atan2", "atanh", "ceil", "comb", "copysign", "cos",
+                    "cosh", "degrees", "dist", "erf", "erfc", "exp", "expm1", "fabs", "factorial", "floor", "fmod",
+                    "frexp", "fsum", "gamma", "gcd", "hypot", "inf", "isclose", "isfinite", "isinf", "isnan", "isqrt",
+                    "lcm", "ldexp", "lgamma", "log", "log10", "log1p", "log2", "modf", "nan", "nextafter", "perm", "pi",
+                    "pow", "prod", "radians", "remainder", "sin", "sinh", "sqrt", "tan", "tanh", "tau", "trunc", "ulp")
     allowed["functions"] |= {(name, getattr(math, name)) for name in math_methods}
 
     # Math methods from the builtin namespace
-    builtin_methods = ('abs', 'divmod', 'max', 'min', 'pow', 'range', 'round', 'sum')
+    builtin_methods = ("abs", "divmod", "max", "min", "pow", "range", "round", "sum")
     allowed["functions"] |= {(name, getattr(builtins, name)) for name in builtin_methods}
 
     return allowed
