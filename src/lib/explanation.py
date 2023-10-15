@@ -18,7 +18,7 @@ class ValueErrorException(Exception):
 
 
 def _is_iterable(thing: any):
-    return isinstance(thing, collections.abc.Iterable) and not isinstance(thing, str)
+    return (isinstance(thing, collections.abc.Iterable) or hasattr(thing, "__getitem__")) and not isinstance(thing, str)
 
 
 class Evaluation:
@@ -30,7 +30,7 @@ class Evaluation:
     _split_components: bool = False
 
     def __init__(self, socket: NodeSocket):
-        explanation = socket.explanation
+        explanation = socket.tmy_explanation
 
         self._values = tuple(socket.default_value) if _is_iterable(socket.default_value) else (socket.default_value,)
         self._split_components = explanation.split_components
@@ -135,7 +135,7 @@ class Evaluation:
 
 
 def _has_formula(socket: NodeSocket):
-    return hasattr(socket, "explanation") and socket.explanation.active and any([c for c in socket.explanation.components if c.use_formula])
+    return hasattr(socket, "tmy_explanation") and socket.tmy_explanation.active and any([c for c in socket.tmy_explanation.components if c.use_formula])
 
 
 def find_formula_sockets():

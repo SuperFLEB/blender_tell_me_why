@@ -21,7 +21,7 @@ class CreateSocketExplanation(Operator):
 
     def execute(self, context) -> Set[str]:
         socket = context.operator_socket
-        explanation = socket.explanation
+        explanation = socket.tmy_explanation
 
         # Can't detail the value if there's no default value to detail
         if not hasattr(socket, "default_value"):
@@ -46,7 +46,7 @@ class RemoveSocketExplanation(Operator):
 
     def execute(self, context) -> Set[str]:
         socket = context.operator_socket
-        socket.property_unset("explanation")
+        socket.property_unset("tmy_explanation")
         return {"FINISHED"}
 
 
@@ -78,7 +78,7 @@ class ApplyAllFormulas(Operator):
         sockets = explanation_lib.find_formula_sockets()
         count = 0
         for socket in sockets:
-            for index, component in enumerate(socket.explanation.components):
+            for index, component in enumerate(socket.tmy_explanation.components):
                 if component.use_formula:
                     new_value = _update_socket(socket, index)
                     if not util.compare(new_value, socket.default_value):

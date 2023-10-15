@@ -61,7 +61,7 @@ def multiline_label(context, layout: bpy.types.UILayout = None, text: str = None
 
         container = layout.column()
         container.scale_y = 0.8
-        lines = util.wordwrap(text, context.region.width / 10)
+        lines = util.wordwrap(text, context.region.width / 8)
         container.label(text=lines[0], **icon)
         for line in lines[1:]:
             lbl = container.label(text=line, **blank_icon)

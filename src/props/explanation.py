@@ -2,6 +2,7 @@ import bpy
 from bpy.types import Operator, NodeSocket, PropertyGroup
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, CollectionProperty
 
+
 def set_split_components(self, value):
     # Collapse existing formulas to a tuple if we are turning off split_components and all are used
     if not (value or [c for c in self.components if not (c and c["use_formula"])]):
@@ -38,6 +39,7 @@ class ComponentValueExplanation(PropertyGroup):
 
 bpy.utils.register_class(ComponentValueExplanation)
 
+
 class ExplanationVariable(PropertyGroup):
     """Defined variables used in Explanations"""
     name: StringProperty(name="name")
@@ -48,7 +50,7 @@ class ExplanationVariable(PropertyGroup):
 bpy.utils.register_class(ExplanationVariable)
 
 
-class Explanation(PropertyGroup):
+class TMYExplanation(PropertyGroup):
     active: BoolProperty(name="active", default=False)
     description: StringProperty(name="Description", default="")
     components: CollectionProperty(type=ComponentValueExplanation)
@@ -58,7 +60,11 @@ class Explanation(PropertyGroup):
 
     @classmethod
     def post_register(cls):
-        NodeSocket.explanation = bpy.props.PointerProperty(type=cls, name="explanation")
+        NodeSocket.tmy_explanation = bpy.props.PointerProperty(
+            type=cls,
+            name="TMYExplanation",
+            description="Explanation information for the Tell Me Why addon"
+        )
 
 
-REGISTER_CLASSES = [Explanation]
+REGISTER_CLASSES = [TMYExplanation]

@@ -44,6 +44,7 @@ def get_value_types(socket: NodeSocket) -> list[str]:
         "INT": ["int"],
         "VALUE": ["float"],
         "VECTOR": ["float","float","float"],
+        "ROTATION": ["float","float","float", "float"],
         "RGBA": ["float","float","float","float"],
         "BOOLEAN": ["bool"]
     }
