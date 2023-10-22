@@ -1,15 +1,16 @@
 from typing import Callable
 import bpy
 from .lib import addon
-from .props import wm_props, explanation as explanation_props
-from .operator import explanation
-from .panel import preferences as preferences_panel
-from .panel import n_panel
+from .props import wm_props, explanation as explanation_props, variable as variable_props
+from .operator import explanation, variable as variable_operators
+from .panel import preferences as preferences_panel, n_panel, variables as variables_panel
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (wm_props, addon, explanation, preferences_panel, n_panel, explanation_props):  # list all imports here
+    for mod in (
+    wm_props, addon, explanation, variable_operators, preferences_panel, n_panel, variables_panel, explanation_props,
+    variable_props):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -43,7 +44,10 @@ registerable_modules = [
     wm_props,
     explanation_props,
     explanation,
-    n_panel
+    variable_operators,
+    n_panel,
+    variables_panel,
+    variable_props,
 ]
 
 registerable_handler_modules = []
