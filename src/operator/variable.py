@@ -1,11 +1,11 @@
 import bpy
 from typing import Set
-from ..props import variable as variable_props
+from ..lib import variable as variable_lib
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (variable_props,):  # list all imports here
+    for mod in (variable_lib,):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -26,7 +26,7 @@ class AddVariable(bpy.types.Operator):
 
     def execute(self, context) -> Set[str]:
         tmy = context.window_manager.tell_me_why_globals
-        tmy.variable_selected_index = variable_props.add()
+        tmy.variable_selected_index = variable_lib.add()
         return {'FINISHED'}
 
 
@@ -39,8 +39,8 @@ class RemoveVariable(bpy.types.Operator):
     def execute(self, context) -> Set[str]:
         tmy = context.window_manager.tell_me_why_globals
         index = tmy.variable_selected_index
-        variable_props.remove(index)
-        count = len(variable_props.get_variables())
+        variable_lib.remove(index)
+        count = len(variable_lib.get_variables())
         if index >= count:
             tmy.variable_selected_index = count - 1
         return {'FINISHED'}

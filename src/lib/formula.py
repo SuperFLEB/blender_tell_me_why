@@ -3,24 +3,30 @@ import builtins
 import math
 from collections.abc import Sequence
 from ..vendor.simpleeval import EvalWithCompoundTypes
-from . import pkginfo, util
+from . import pkginfo, util, variable as variable_lib
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (pkginfo, util):  # list all imports here
+    for mod in (pkginfo, util, variable_lib):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
 package_name = pkginfo.package_name()
-_formula_cache = {}
+
+# formula text: formula result
+_formula_cache: dict[str, str] = {}
+# name: formula text
+_variable_formula_cache: dict[str, str] = {}
+# formula text: formula result
+_variable_eval_cache: dict[str, tuple[float, ...]] = {}
 
 
 class FormulaExecutionException(Exception):
     pass
 
 
-def formula_accessible_globals() -> dict[str, any]:
+def default_allowed() -> dict[str, any]:
     allowed = {
         "names": {
             "eulers": math.e,
@@ -46,46 +52,85 @@ def formula_accessible_globals() -> dict[str, any]:
     return allowed
 
 
-def _do_eval(formula: str, variables: dict[
-    str, int | float | Sequence[float, float, float] | Sequence[float, float, float, float]] = None):
-
+def _do_eval(formula: str, variables: dict[str, int | float | Sequence[float, ...]] = None):
     variables = variables if variables else {}
-    allowed = formula_accessible_globals()
-
-    # Any exceptions should be handled in the caller
-    evaluator = EvalWithCompoundTypes(functions=allowed["functions"], names=allowed["names"] | variables)
-    return evaluator.eval(formula)
+    allowed = default_allowed()
+    try:
+        evaluator = EvalWithCompoundTypes(functions=allowed["functions"], names=allowed["names"] | variables)
+        return evaluator.eval(formula)
+    except BaseException as e:
+        raise FormulaExecutionException(f"Formula raised an exception: {e}")
 
 
 def eval_formula(
         formula: str,
-        expect_len: int = 1,
-        extend_to_expected: bool = False
+        expect_len: int = None,
+        extend_to_expected: bool = False,
+        wrap_singles: bool = False
 ) -> tuple[float, ...]:
-    if _formula_cache.get(formula, None):
-        result = _formula_cache[formula]
-    else:
-        try:
-            result = _do_eval(formula)
-            _formula_cache[formula] = result
-        except BaseException as e:
-            raise FormulaExecutionException(f"Formula raised an exception: {e}")
+    global _formula_cache
+
+    # eval_all_variables MUST come before any _formula_cache reads,
+    # as part of its job is invalidating the formula cache if variables change
+    variables = eval_all_variables()
+
+    if (result := _formula_cache.get(formula, None)) is None:
+        result = _do_eval(formula, variables)
+        _formula_cache[formula] = result
 
     if type(result) is str or not hasattr(result, "__len__"):
         result = [result]
 
     result_len = len(result)
 
-    if result_len != expect_len and not extend_to_expected:
-        raise FormulaExecutionException("Unexpected result length")
+    if expect_len is not None:
+        if result_len != expect_len and not extend_to_expected:
+            raise FormulaExecutionException("Unexpected result length")
 
-    # Extend the list if the result is shorter
-    if result_len < expect_len:
-        return tuple(result + (result[-1:] * (expect_len - result_len)))
+        # Extend the list if the result is shorter
+        if result_len < expect_len:
+            return tuple(result + (result[-1:] * (expect_len - result_len)))
 
-    # Truncate the list if the result is longer
-    if result_len > expect_len:
-        return tuple(result[0:expect_len])
+        # Truncate the list if the result is longer
+        if result_len > expect_len:
+            return tuple(result[0:expect_len])
 
     # Return the list if all is well
     return tuple(result)
+
+
+def eval_variable(name: str, formula: str):
+    # Since variables can't use other variables, there's always a 1:1 relationship between formula and value, so we can
+    # associate formula with value in a cache
+    global _variable_formula_cache, _variable_eval_cache, _formula_cache
+    if _variable_formula_cache.get(name, None) == formula:
+        value = _variable_eval_cache.get(formula, None)
+        if value is not None:
+            return value
+
+    # If variables have changed, the formula_cache is invalid
+    if _formula_cache:
+        _formula_cache = {}
+
+    result = _do_eval(formula, {})
+    try:
+        result = tuple([float(r) for r in result]) if util.is_iterable(result) else float(result)
+    except BaseException as e:
+        raise FormulaExecutionException(f"Variable evaluation of variable {name} raised an exception: {e}")
+
+    _variable_formula_cache[name] = formula
+    _variable_eval_cache[formula] = result
+    print("Evaluated variable:", name, formula, result)
+    return result
+
+
+def reset_variable_cache():
+    """Reset variable name-to-value and formula caches, e.g., after deleting a variable
+    and possibly invalidating formulas"""
+    global _variable_formula_cache, _formula_cache
+    _variable_formula_cache = variable_lib.get_formulas()
+    _formula_cache = {}
+
+
+def eval_all_variables() -> dict[str, int | float | tuple[float, ...]]:
+    return {v.name: eval_variable(v.name, v.formula) for v in variable_lib.get_variables()}

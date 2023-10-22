@@ -2,13 +2,13 @@ import bpy
 from typing import Set
 from bpy.types import Operator, NodeSocket, PropertyGroup
 from bpy.props import PointerProperty, StringProperty, BoolProperty, FloatProperty, IntProperty, CollectionProperty
-from ..lib import node as node_lib, explanation as explanation_lib, util
+from ..lib import node as node_lib, evaluation as evaluation_lib, formula as formula_lib, util
 from ..props import explanation as explanation_props
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (node_lib, explanation_props, explanation_lib, util):  # list all imports here
+    for mod in (node_lib, explanation_props, evaluation_lib, formula_lib, util):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -51,7 +51,8 @@ class RemoveSocketExplanation(Operator):
 
 
 def _update_socket(socket, index):
-    evaluated = explanation_lib.Evaluation(socket)
+    formula_lib.eval_all_variables()
+    evaluated = evaluation_lib.Evaluation(socket)
     return evaluated.apply_result(socket.default_value, index)
 
 
@@ -75,10 +76,9 @@ class ApplyAllFormulas(Operator):
     bl_options = {"UNDO"}
 
     def execute(self, context) -> Set[str]:
-        sockets = explanation_lib.find_formula_sockets()
+        sockets = evaluation_lib.find_formula_sockets()
         successes = 0
         failures = 0
-
         for socket in sockets:
             for index, component in enumerate(socket.tmy_explanation.components):
                 if component.use_formula:

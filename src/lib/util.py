@@ -1,6 +1,7 @@
+import bpy
+import collections.abc
 from typing import Iterable, Callable
 from math import isclose
-import bpy
 import re
 
 
@@ -35,7 +36,8 @@ def uilist_sort(items: list[any], make_sortable_fn: Callable[[any], any] = lambd
 
     # Achieve this by enumerating the original list, sorting the enumeration by value, then enumerating that, so
     # we have both the original position and the new (desired) one...
-    for (new_index, (original_index, _)) in enumerate(sorted(enumerate(items), key=lambda item: make_sortable_fn(item[1]))):
+    for (new_index, (original_index, _)) in enumerate(
+            sorted(enumerate(items), key=lambda item: make_sortable_fn(item[1]))):
         # ...then assigning value new_index to list item original_index
         moves[original_index] = new_index
 
@@ -86,3 +88,7 @@ def compare_vectors(a, b, float_precision: float = 0.00001):
             if ac != bc:
                 return False
     return True
+
+
+def is_iterable(thing: any):
+    return (isinstance(thing, collections.abc.Iterable) or hasattr(thing, "__getitem__")) and not isinstance(thing, str)
