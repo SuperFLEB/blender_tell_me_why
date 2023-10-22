@@ -8,7 +8,7 @@ from ..props import explanation as explanation_props
 package_name = pkginfo.package_name()
 icon_value = addon_lib.icon_value
 
-if 1 or "_LOADED" in locals():
+if "_LOADED" in locals():
     import importlib
 
     for mod in (explanation_op, node_lib, formula_lib, addon_lib, util, explanation_lib):  # list all imports here
@@ -234,7 +234,6 @@ class TellMeWhyPanel(Panel):
                 socket_state = tmy.socket_states.add()
                 socket_state["edit_mode"] = False
 
-        # If there are no explained sockets, hard-True "show_all" so the user sees the "Add" buttons
         has_explained_sockets = False
         has_unexplained_sockets = False
 
