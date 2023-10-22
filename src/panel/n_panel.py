@@ -2,7 +2,7 @@ import bpy
 from bpy.types import Panel, UILayout, NodeSocket, NodeInternal
 from ..operator import explanation as explanation_op
 from ..lib import pkginfo, util, node as node_lib, formula as formula_lib, addon as addon_lib, \
-    explanation as explanation_lib
+    evaluation as evaluation_lib
 from ..props import explanation as explanation_props
 
 package_name = pkginfo.package_name()
@@ -11,7 +11,7 @@ icon_value = addon_lib.icon_value
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (explanation_op, node_lib, formula_lib, addon_lib, util, explanation_lib):  # list all imports here
+    for mod in (explanation_op, node_lib, formula_lib, addon_lib, util, evaluation_lib):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -138,7 +138,7 @@ class TellMeWhyPanel(Panel):
 
         components = explanation.components if explanation.split_components else [explanation.components[0]]
         component_labels = self._get_component_labels(socket)
-        evaluated = explanation_lib.Evaluation(socket)
+        evaluated = evaluation_lib.Evaluation(socket)
         for c_idx, component in enumerate(components):
             self._draw_component_edit(socket_layout, socket, evaluated, c_idx, component, component_labels[c_idx]) if edit_mode else self._draw_component_view(
                 context, socket_layout, socket, evaluated, c_idx, component, component_labels[c_idx])

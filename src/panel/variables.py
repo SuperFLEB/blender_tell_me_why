@@ -1,14 +1,12 @@
 import bpy
 from bpy.types import Panel, UIList
-from bpy.props import  IntProperty
-from ..lib import pkginfo
-from ..props import variable as variable_props
+from ..lib import pkginfo, variable as variable_lib
 
 package_name = pkginfo.package_name()
 
 if "_LOADED" in locals():
     import importlib
-    for mod in (pkginfo, variable_props):  # list all imports here
+    for mod in (pkginfo, variable_lib):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 
@@ -32,14 +30,14 @@ class TellMeWhyFileVariablesPanel(Panel):
     def draw(self, context):
         layout = self.layout
         tmy = context.window_manager.tell_me_why_globals
-        pointer = variable_props.get_variables_pointer()
+        pointer = variable_lib.get_variables_pointer()
 
         list_row = layout.row()
 
         list_col = list_row.column()
         list_col.template_list("TMY_UL_variables", "variables_list", pointer[0], pointer[1], tmy, "variable_selected_index")
 
-        variables = variable_props.get_variables()
+        variables = variable_lib.get_variables()
         if variables and variables[tmy.variable_selected_index]:
             edit_box = list_col.box()
             edit_box.prop(variables[tmy.variable_selected_index], "name")

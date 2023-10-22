@@ -1,5 +1,4 @@
 import bpy
-import collections.abc
 from typing import Iterable
 from bpy.types import NodeSocket
 from ..props import explanation as explanation_props
@@ -17,10 +16,6 @@ class ValueErrorException(Exception):
     pass
 
 
-def _is_iterable(thing: any):
-    return (isinstance(thing, collections.abc.Iterable) or hasattr(thing, "__getitem__")) and not isinstance(thing, str)
-
-
 class Evaluation:
     _values: tuple = tuple()
     _results: tuple[float, ...] = tuple()
@@ -32,7 +27,7 @@ class Evaluation:
     def __init__(self, socket: NodeSocket):
         explanation = socket.tmy_explanation
 
-        self._values = tuple(socket.default_value) if _is_iterable(socket.default_value) else (socket.default_value,)
+        self._values = tuple(socket.default_value) if util.is_iterable(socket.default_value) else (socket.default_value,)
         self._split_components = explanation.split_components
 
         if not self._split_components:

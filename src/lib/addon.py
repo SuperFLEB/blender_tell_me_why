@@ -8,6 +8,14 @@ from . import util
 
 from hashlib import md5
 
+if "_LOADED" in locals():
+    import importlib
+
+    for mod in (util,):  # list all imports here
+        importlib.reload(mod)
+_LOADED = True
+
+
 """
 This library contains helper functions useful in setup and management of Blender addons.
 It is required by the __init__.py, so don't remove it unless you fix dependencies.
