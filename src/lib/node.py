@@ -1,4 +1,3 @@
-import bpy
 from bpy.types import NodeSocket
 
 
@@ -43,9 +42,9 @@ def get_value_types(socket: NodeSocket) -> list[str]:
     types = {
         "INT": ["int"],
         "VALUE": ["float"],
-        "VECTOR": ["float","float","float"],
-        "ROTATION": ["float","float","float", "float"],
-        "RGBA": ["float","float","float","float"],
+        "VECTOR": ["float", "float", "float"],
+        "ROTATION": ["float", "float", "float", "float"],
+        "RGBA": ["float", "float", "float", "float"],
         "BOOLEAN": ["bool"]
     }
     for t in ["STRING", "SHADER", "OBJECT", "IMAGE", "TEXTURE", "MATERIAL", "COLLECTION"]:

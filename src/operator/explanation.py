@@ -1,7 +1,9 @@
-import bpy
 from typing import Set
-from bpy.types import Operator, NodeSocket, PropertyGroup
-from bpy.props import PointerProperty, StringProperty, BoolProperty, FloatProperty, IntProperty, CollectionProperty
+from typing import Set
+
+from bpy.props import IntProperty
+from bpy.types import Operator
+
 from ..lib import node as node_lib, evaluation as evaluation_lib, formula as formula_lib, util
 from ..props import explanation as explanation_props
 

@@ -1,16 +1,19 @@
 from typing import Callable
+
 import bpy
+
 from .lib import addon
-from .props import wm_props, explanation as explanation_props, variable as variable_props
 from .operator import explanation, variable as variable_operators
 from .panel import preferences as preferences_panel, n_panel, variables as variables_panel
+from .props import wm_props, explanation as explanation_props, variable as variable_props
 
 if "_LOADED" in locals():
     import importlib
 
     for mod in (
-    wm_props, addon, explanation, variable_operators, preferences_panel, n_panel, variables_panel, explanation_props,
-    variable_props):  # list all imports here
+            wm_props, addon, explanation, variable_operators, preferences_panel, n_panel, variables_panel,
+            explanation_props,
+            variable_props):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
 

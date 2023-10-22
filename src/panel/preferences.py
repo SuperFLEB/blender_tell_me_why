@@ -1,6 +1,7 @@
 import bpy
-from ..lib import pkginfo
+
 from ..lib import addon as addon_lib
+from ..lib import pkginfo
 from ..lib import util
 from ..panel import n_panel
 

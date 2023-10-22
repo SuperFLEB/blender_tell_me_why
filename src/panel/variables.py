@@ -1,11 +1,12 @@
-import bpy
 from bpy.types import Panel, UIList
+
 from ..lib import pkginfo, variable as variable_lib
 
 package_name = pkginfo.package_name()
 
 if "_LOADED" in locals():
     import importlib
+
     for mod in (pkginfo, variable_lib):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
@@ -35,7 +36,8 @@ class TellMeWhyFileVariablesPanel(Panel):
         list_row = layout.row()
 
         list_col = list_row.column()
-        list_col.template_list("TMY_UL_variables", "variables_list", pointer[0], pointer[1], tmy, "variable_selected_index")
+        list_col.template_list("TMY_UL_variables", "variables_list", pointer[0], pointer[1], tmy,
+                               "variable_selected_index")
 
         variables = variable_lib.get_variables()
         if variables and variables[tmy.variable_selected_index]:
@@ -46,5 +48,6 @@ class TellMeWhyFileVariablesPanel(Panel):
         ops_col = list_row.column(align=True)
         ops_col.operator("tell_me_why.add_scene_variable", icon='ADD', text="")
         ops_col.operator("tell_me_why.remove_scene_variable", icon='REMOVE', text="")
+
 
 REGISTER_CLASSES = [TMY_UL_variables, TellMeWhyFileVariablesPanel]

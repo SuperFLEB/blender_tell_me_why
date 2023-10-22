@@ -1,8 +1,10 @@
-import bpy
 import re
+
+import bpy
 from bpy.types import AnyType
-from ..props import variable as variable_prop
+
 from ..lib import formula as formula_lib
+from ..props import variable as variable_prop
 
 _VAR_PREFIX = "var"
 

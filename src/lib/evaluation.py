@@ -1,8 +1,10 @@
-import bpy
 from typing import Iterable
+
+import bpy
 from bpy.types import NodeSocket
-from ..props import explanation as explanation_props
+
 from ..lib import formula as formula_lib, util
+from ..props import explanation as explanation_props
 
 if "_LOADED" in locals():
     import importlib
@@ -27,7 +29,8 @@ class Evaluation:
     def __init__(self, socket: NodeSocket):
         explanation = socket.tmy_explanation
 
-        self._values = tuple(socket.default_value) if util.is_iterable(socket.default_value) else (socket.default_value,)
+        self._values = tuple(socket.default_value) if util.is_iterable(socket.default_value) else (
+        socket.default_value,)
         self._split_components = explanation.split_components
 
         if not self._split_components:
@@ -112,7 +115,8 @@ class Evaluation:
     def get_formulas(self) -> tuple[str, ...]:
         return self._formulas
 
-    def apply_result(self, current_value: float | Iterable[float], index: int = 0, force_split_components: bool = False) -> float | tuple[float]:
+    def apply_result(self, current_value: float | Iterable[float], index: int = 0,
+                     force_split_components: bool = False) -> float | tuple[float]:
         """Combine the given result index with the given one and return the results, considering split components and
         scalar/list values"""
         results = self.get_results()
@@ -130,7 +134,8 @@ class Evaluation:
 
 
 def _has_formula(socket: NodeSocket):
-    return hasattr(socket, "tmy_explanation") and socket.tmy_explanation.active and any([c for c in socket.tmy_explanation.components if c.use_formula])
+    return hasattr(socket, "tmy_explanation") and socket.tmy_explanation.active and any(
+        [c for c in socket.tmy_explanation.components if c.use_formula])
 
 
 def find_formula_sockets():

@@ -1,5 +1,7 @@
-import bpy
 from typing import Set
+
+import bpy
+
 from ..lib import variable as variable_lib
 
 if "_LOADED" in locals():
@@ -8,7 +10,6 @@ if "_LOADED" in locals():
     for mod in (variable_lib,):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
-
 
 if "_LOADED" in locals():
     import importlib
@@ -44,5 +45,6 @@ class RemoveVariable(bpy.types.Operator):
         if index >= count:
             tmy.variable_selected_index = count - 1
         return {'FINISHED'}
+
 
 REGISTER_CLASSES = [AddVariable, RemoveVariable]
