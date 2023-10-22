@@ -1,12 +1,8 @@
 import bpy
-import glob
 from pathlib import Path
-from bpy.types import Operator, Menu
 from typing import Callable, Type
 from types import ModuleType
 from . import util
-
-from hashlib import md5
 
 if "_LOADED" in locals():
     import importlib
@@ -14,7 +10,6 @@ if "_LOADED" in locals():
     for mod in (util,):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
-
 
 """
 This library contains helper functions useful in setup and management of Blender addons.
@@ -32,6 +27,7 @@ def menuitem(cls: bpy.types.Operator | bpy.types.Menu, operator_context: str = "
             self.layout.operator_context = operator_context
             if (not hasattr(cls, "can_show")) or cls.can_show(context):
                 self.layout.operator(cls.bl_idname)
+
         return operator_fn
     if issubclass(cls, bpy.types.Menu):
         def submenu_fn(self, context):
@@ -44,7 +40,8 @@ def menuitem(cls: bpy.types.Operator | bpy.types.Menu, operator_context: str = "
 def get_registerable_classes(registerable_modules: list[ModuleType]) -> list[Type]:
     module_classes = [m.REGISTER_CLASSES for m in registerable_modules if hasattr(m, "REGISTER_CLASSES")]
     if len(module_classes) < len(registerable_modules):
-        print("(!) Some modules did not contain valid REGISTER_CLASSES arrays: ", [m.__name__ for m in registerable_modules if not hasattr(m, "REGISTER_CLASSES")])
+        print("(!) Some modules did not contain valid REGISTER_CLASSES arrays: ",
+              [m.__name__ for m in registerable_modules if not hasattr(m, "REGISTER_CLASSES")])
     flat_classes = [c for mc in module_classes for c in mc]
     # Deduplicate and preserve order using the Python 3.7+ fact that dicts keep insertion order
     dedupe_classes = list(dict.fromkeys(flat_classes))
@@ -61,18 +58,19 @@ def unregister_menus(menus: list[tuple[str, Callable]]):
         getattr(bpy.types, m[0]).remove(m[1])
 
 
-def multiline_label(context, layout: bpy.types.UILayout = None, text: str = None, icon: str = None, omit_empty: bool = False) -> None:
-        if omit_empty and not text:
-            return
-        blank_icon = {"icon": "BLANK1"} if icon else {}
-        icon = {"icon": icon} if icon else {}
+def multiline_label(context, layout: bpy.types.UILayout = None, text: str = None, icon: str = None,
+                    omit_empty: bool = False) -> None:
+    if omit_empty and not text:
+        return
+    blank_icon = {"icon": "BLANK1"} if icon else {}
+    icon = {"icon": icon} if icon else {}
 
-        container = layout.column()
-        container.scale_y = 0.8
-        lines = util.wordwrap(text, context.region.width / 8)
-        container.label(text=lines[0], **icon)
-        for line in lines[1:]:
-            lbl = container.label(text=line, **blank_icon)
+    container = layout.column()
+    container.scale_y = 0.8
+    lines = util.wordwrap(text, context.region.width / 8)
+    container.label(text=lines[0], **icon)
+    for line in lines[1:]:
+        lbl = container.label(text=line, **blank_icon)
 
 
 def register_icons():

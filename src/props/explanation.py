@@ -1,6 +1,6 @@
 import bpy
-from bpy.types import Operator, NodeSocket, PropertyGroup
 from bpy.props import StringProperty, BoolProperty, FloatProperty, IntProperty, CollectionProperty
+from bpy.types import NodeSocket, PropertyGroup
 
 
 def set_split_components(self, value):

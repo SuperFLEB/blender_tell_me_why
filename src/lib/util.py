@@ -1,8 +1,7 @@
-import bpy
 import collections.abc
-from typing import Iterable, Callable
-from math import isclose
 import re
+from math import isclose
+from typing import Callable
 
 
 def flatten(list_of_lists: list[list[any]]) -> list[any]:

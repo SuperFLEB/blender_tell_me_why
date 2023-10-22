@@ -1,9 +1,9 @@
-import bpy
 import builtins
 import math
 from collections.abc import Sequence
-from ..vendor.simpleeval import EvalWithCompoundTypes
+
 from . import pkginfo, util, variable as variable_lib
+from ..vendor.simpleeval import EvalWithCompoundTypes
 
 if "_LOADED" in locals():
     import importlib

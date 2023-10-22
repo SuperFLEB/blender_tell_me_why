@@ -1,6 +1,6 @@
-import bpy
-from bpy.types import PropertyGroup, Scene, AnyType
 from bpy.props import StringProperty, CollectionProperty, IntProperty
+from bpy.types import PropertyGroup, Scene
+
 
 class TMYVariable(PropertyGroup):
     """Variable definition"""
@@ -19,7 +19,8 @@ class TMYVariable(PropertyGroup):
 
     @classmethod
     def post_register(cls):
-        Scene.tmy_variables = CollectionProperty(type = cls)
+        Scene.tmy_variables = CollectionProperty(type=cls)
         Scene.tmy_variable_pointer = IntProperty()
 
-REGISTER_CLASSES = [ TMYVariable ]
+
+REGISTER_CLASSES = [TMYVariable]

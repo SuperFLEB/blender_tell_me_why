@@ -1,9 +1,9 @@
 import bpy
-from bpy.types import Panel, UILayout, NodeSocket, NodeInternal
-from ..operator import explanation as explanation_op
+from bpy.types import Panel, UILayout, NodeSocket
+
 from ..lib import pkginfo, util, node as node_lib, formula as formula_lib, addon as addon_lib, \
     evaluation as evaluation_lib
-from ..props import explanation as explanation_props
+from ..operator import explanation as explanation_op
 
 package_name = pkginfo.package_name()
 icon_value = addon_lib.icon_value
@@ -90,10 +90,10 @@ class TellMeWhyPanel(Panel):
             return (f"{socket.name} ({node_lib.socket_type_label(socket)})",)
 
         labels = {
-            "VECTOR": ("X", "Y", "Z"),
-            "ROTATION": ("W", "X", "Y", "Z"),
-            "RGBA": ("Red", "Green", "Blue", "Alpha")
-        }.get(socket.type, None) or tuple([f"{socket.name} {i}" for i, _ in explanation.components])
+                     "VECTOR": ("X", "Y", "Z"),
+                     "ROTATION": ("W", "X", "Y", "Z"),
+                     "RGBA": ("Red", "Green", "Blue", "Alpha")
+                 }.get(socket.type, None) or tuple([f"{socket.name} {i}" for i, _ in explanation.components])
 
         return labels
 
@@ -121,7 +121,8 @@ class TellMeWhyPanel(Panel):
         if edit_mode:
             socket_layout.prop(data=socket.tmy_explanation, property="description", text="", icon=icons["description"])
         elif socket.tmy_explanation.description:
-            addon_lib.multiline_label(context, socket_layout, text=socket.tmy_explanation.description, icon=icons["description"])
+            addon_lib.multiline_label(context, socket_layout, text=socket.tmy_explanation.description,
+                                      icon=icons["description"])
 
         # If the socket has no values, we can't set formulas, so only display annotation
         if not hasattr(socket, "default_value"):
@@ -140,7 +141,8 @@ class TellMeWhyPanel(Panel):
         component_labels = self._get_component_labels(socket)
         evaluated = evaluation_lib.Evaluation(socket)
         for c_idx, component in enumerate(components):
-            self._draw_component_edit(socket_layout, socket, evaluated, c_idx, component, component_labels[c_idx]) if edit_mode else self._draw_component_view(
+            self._draw_component_edit(socket_layout, socket, evaluated, c_idx, component,
+                                      component_labels[c_idx]) if edit_mode else self._draw_component_view(
                 context, socket_layout, socket, evaluated, c_idx, component, component_labels[c_idx])
 
     def _draw_component_view(self, context, layout, socket, evaluated, index, component, label):
@@ -211,7 +213,6 @@ class TellMeWhyPanel(Panel):
         else:
             formula_layout.label(text=util.format_prop_value(component_current_value))
 
-
     def draw(self, context):
         layout = self.layout
         wm = context.window_manager
@@ -253,7 +254,6 @@ class TellMeWhyPanel(Panel):
 
         if not has_explained_sockets and not tmy.show_unexplained:
             addon_lib.multiline_label(context, layout, text="No active annotations. Use \"Show All\" to add some.")
-
 
         socket: NodeSocket
         for s_idx, socket in enumerate(node.inputs):
