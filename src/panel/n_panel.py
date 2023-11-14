@@ -252,7 +252,10 @@ class TellMeWhyPanel(Panel):
             su_label = "Hide Inactive" if tmy.show_unexplained else "Show All"
             layout.prop(data=tmy, property="show_unexplained", text=su_label, toggle=True)
 
-        if not has_explained_sockets and not tmy.show_unexplained:
+        if not (has_explained_sockets or has_unexplained_sockets):
+            # No explainable sockets. Can't show anything.
+            addon_lib.multiline_label(context, layout, text="No input sockets have values. Nothing to annotate.")
+        elif not (has_explained_sockets or tmy.show_unexplained):
             addon_lib.multiline_label(context, layout, text="No active annotations. Use \"Show All\" to add some.")
 
         socket: NodeSocket

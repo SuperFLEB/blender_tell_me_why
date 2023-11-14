@@ -22,7 +22,7 @@ class TMY_UL_variables(UIList):
 class TellMeWhyFileVariablesPanel(Panel):
     bl_idname = "NODE_PT_tmy_file_variables"
     bl_category = "Tell Me Why"
-    bl_label = "Variables"
+    bl_label = "File Variables"
     bl_space_type = "NODE_EDITOR"
     bl_region_type = "UI"
 
