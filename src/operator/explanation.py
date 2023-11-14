@@ -76,18 +76,26 @@ class ApplyAllFormulas(Operator):
 
     def execute(self, context) -> Set[str]:
         sockets = explanation_lib.find_formula_sockets()
-        count = 0
+        successes = 0
+        failures = 0
+
         for socket in sockets:
             for index, component in enumerate(socket.tmy_explanation.components):
                 if component.use_formula:
-                    new_value = _update_socket(socket, index)
-                    if not util.compare(new_value, socket.default_value):
-                        count += 1
-                        socket.default_value = new_value
-        if count:
-            self.report({"INFO"}, f"{count} formulas updated")
+                    try:
+                        new_value = _update_socket(socket, index)
+                        if not util.compare(new_value, socket.default_value):
+                            successes += 1
+                            socket.default_value = new_value
+                    except:
+                        failures += 1
+
+        if failures:
+            self.report({"WARNING"}, f"{failures} failed. {successes} values updated.")
+        elif successes:
+            self.report({"INFO"}, f"{successes} values updated.")
         else:
-            self.report({"INFO"}, "No formulas updated")
+            self.report({"WARNING"}, "No values updated.")
 
         return {"FINISHED"}
 
