@@ -9,14 +9,14 @@ _This addon is in early stages and active development. Feedback is welcome._
 
 ## Features
 
-* Add descriptive reminders to nodes and inputs
+* Add descriptive annotations to node socket values
 * Use formulas to calculate values
-* Save information with the Blender file
+* Formulas and annotations are saved with the Blender file
+* File-wide variables for use in formulas and values
 
 ### Future Features, Coming Soon
 
-* Reusable formulas and values
-
+* Import/export formulas and values to files or to a personal library
 
 ## To install
 
