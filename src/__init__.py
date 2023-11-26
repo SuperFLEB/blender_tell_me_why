@@ -4,7 +4,7 @@ import bpy
 
 from .lib import addon
 from .operator import explanation, variable as variable_operators
-from .panel import preferences as preferences_panel, n_panel, variables as variables_panel, variables_uilist
+from .panel import preferences as preferences_panel, n_panel, variables as variables_panel, ul_variables
 from .props import wm_props, explanation as explanation_props, variable as variable_props
 
 if "_LOADED" in locals():
@@ -12,7 +12,7 @@ if "_LOADED" in locals():
 
     for mod in (
             wm_props, addon, explanation, variable_operators, variable_props, n_panel, variables_panel,
-            explanation_props, variables_uilist, preferences_panel):
+            explanation_props, ul_variables, preferences_panel):
         importlib.reload(mod)
 
 _LOADED = True
@@ -43,6 +43,7 @@ menus: list[tuple[str, Callable]] = [
 # Registerable modules have a REGISTER_CLASSES list that lists all registerable classes in the module
 registerable_modules = [
     variable_props,
+    ul_variables,
     # preferences_panel MUST be registered before n_panel
     preferences_panel,
     wm_props,
@@ -50,8 +51,7 @@ registerable_modules = [
     explanation,
     variable_operators,
     n_panel,
-    variables_panel,
-    variables_uilist,
+    variables_panel
 ]
 
 registerable_handler_modules = []
