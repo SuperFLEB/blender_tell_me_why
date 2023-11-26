@@ -1,8 +1,10 @@
+from pathlib import Path
+from types import ModuleType
+from typing import Callable, Type
+
 import bpy
 import bpy.utils.previews
-from pathlib import Path
-from typing import Callable, Type
-from types import ModuleType
+
 from . import util
 
 if "_LOADED" in locals():

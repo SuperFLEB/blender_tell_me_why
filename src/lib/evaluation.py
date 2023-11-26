@@ -30,7 +30,7 @@ class Evaluation:
         explanation = socket.tmy_explanation
 
         self._values = tuple(socket.default_value) if util.is_iterable(socket.default_value) else (
-        socket.default_value,)
+            socket.default_value,)
         self._split_components = explanation.split_components
 
         if not self._split_components:

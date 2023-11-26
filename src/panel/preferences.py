@@ -1,8 +1,9 @@
 import bpy
-from ..props import variable as variable_props
+
+from . import n_panel, ul_variables, variables as variables_panel
 from ..lib import pkginfo, addon as addon_lib, variable as variable_lib, util
 from ..operator import variable as variable_op
-from . import n_panel, ul_variables, variables as variables_panel
+from ..props import variable as variable_props
 
 if "_LOADED" in locals():
     import importlib
@@ -12,6 +13,7 @@ if "_LOADED" in locals():
 _LOADED = True
 
 package_name = pkginfo.package_name()
+
 
 def get_location(self):
     return self.get("value", 0)
@@ -60,8 +62,10 @@ class TMYPrefsPanel(bpy.types.AddonPreferences):
         doc_layout = list_box.column()
         doc_layout.scale_y = 0.5
         import_menu_label = variables_panel.TMY_MT_ImportVariables.bl_label
-        doc_layout.label(text="Your Variable Library is a place for commonly-used variables that can be easily imported into Scenes.")
-        doc_layout.label(text=f"To use Variable Library variables, import them into a Scene using the \"{import_menu_label}\" feature of the Tell Me Why panel.")
+        doc_layout.label(
+            text="Your Variable Library is a place for commonly-used variables that can be easily imported into Scenes.")
+        doc_layout.label(
+            text=f"To use Variable Library variables, import them into a Scene using the \"{import_menu_label}\" feature of the Tell Me Why panel.")
 
         list_row = list_box.row()
         list_col = list_row.column()
@@ -80,8 +84,8 @@ class TMYPrefsPanel(bpy.types.AddonPreferences):
             edit_box.prop(variables[tmy.variable_selected_index_prefs], "formula", text="Value")
 
         ops_col = list_row.column(align=True)
-        ops_col.operator(variable_op.AddGlobalLibVariable.bl_idname, icon='ADD', text="")
-        ops_col.operator(variable_op.RemoveGlobalLibVariable.bl_idname, icon='REMOVE', text="")
+        ops_col.operator(variable_op.AddGlobalLibVariable.bl_idname, icon="ADD", text="")
+        ops_col.operator(variable_op.RemoveGlobalLibVariable.bl_idname, icon="REMOVE", text="")
 
 
 REGISTER_CLASSES = [TMYPrefsPanel]

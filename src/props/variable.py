@@ -1,7 +1,8 @@
-import bpy
 import re
-from bpy.props import StringProperty, CollectionProperty, IntProperty
-from bpy.types import PropertyGroup, Scene, WindowManager
+
+from bpy.props import StringProperty, CollectionProperty
+from bpy.types import PropertyGroup, Scene
+
 
 def set_valid_name(self, value):
     valid_name = re.sub(r"[^A-Za-z0-9]", "_", value)
@@ -33,7 +34,6 @@ class TMYVariable(PropertyGroup):
     @classmethod
     def post_register(cls):
         Scene.tmy_variables = CollectionProperty(type=cls)
-
 
     @classmethod
     def post_unregister(cls):

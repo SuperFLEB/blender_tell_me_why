@@ -1,5 +1,6 @@
 import bpy
 from bpy.types import UIList
+
 from ..lib import formula as formula_lib
 
 if "_LOADED" in locals():
@@ -21,8 +22,9 @@ class TMY_UL_Variables(UIList):
         except formula_lib.FormulaExecutionException:
             evaled_ok = False
 
-        split.label(text="", icon='ERROR' if not evaled_ok else 'CHECKMARK')
+        split.label(text="", icon="ERROR" if not evaled_ok else "CHECKMARK")
         split.label(text=item.name)
         split.label(text=item.formula)
+
 
 REGISTER_CLASSES = [TMY_UL_Variables]

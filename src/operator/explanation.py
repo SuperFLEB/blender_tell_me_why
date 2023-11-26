@@ -1,5 +1,4 @@
 from typing import Set
-from typing import Set
 
 from bpy.props import IntProperty
 from bpy.types import Operator

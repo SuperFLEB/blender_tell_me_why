@@ -1,5 +1,6 @@
 import bpy
-from bpy.types import Panel, Menu, UIList
+from bpy.types import Panel, Menu
+
 from . import ul_variables
 from ..lib import pkginfo, addon as addon_lib, variable as variable_lib, formula as formula_lib
 from ..operator import variable as variable_op
@@ -15,8 +16,8 @@ _LOADED = True
 
 
 class TMY_MT_ImportVariables(Menu):
-    bl_idname = 'TMY_MT_import_variables'
-    bl_label = 'Import Variables From...'
+    bl_idname = "TMY_MT_import_variables"
+    bl_label = "Import Variables From..."
 
     def draw(self, context):
         layout = self.layout
@@ -25,6 +26,7 @@ class TMY_MT_ImportVariables(Menu):
                 oper = layout.operator(variable_op.ImportVariablesFromScene.bl_idname, text=scene.name)
                 oper.scene = scene.name
         layout.operator(variable_op.ImportVariablesFromGlobalLib.bl_idname)
+
 
 class NODE_PT_TMYFileVariables(Panel):
     bl_idname = "NODE_PT_tmy_file_variables"
@@ -53,8 +55,8 @@ class NODE_PT_TMYFileVariables(Panel):
             edit_box.prop(variables[tmy.variable_selected_index], "formula", text="Value")
 
         ops_col = list_row.column(align=True)
-        ops_col.operator("tell_me_why.add_scene_variable", icon='ADD', text="")
-        ops_col.operator("tell_me_why.remove_scene_variable", icon='REMOVE', text="")
+        ops_col.operator("tell_me_why.add_scene_variable", icon="ADD", text="")
+        ops_col.operator("tell_me_why.remove_scene_variable", icon="REMOVE", text="")
 
         layout.menu(TMY_MT_ImportVariables.bl_idname)
 
