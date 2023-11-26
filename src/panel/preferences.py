@@ -1,19 +1,17 @@
 import bpy
-
-from ..lib import addon as addon_lib
+from ..props import variable as variable_props
 from ..lib import pkginfo
-from ..lib import util
-from ..panel import n_panel
+from ..lib import addon as addon_lib, util
+from . import n_panel, variables_uilist
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (pkginfo, addon_lib, util,):  # list all imports here
+    for mod in (pkginfo, variable_props, addon_lib, util, n_panel, variables_uilist):
         importlib.reload(mod)
 _LOADED = True
 
 package_name = pkginfo.package_name()
-
 
 def get_location(self):
     return self.get("value", 0)
@@ -26,7 +24,7 @@ def set_location(self, value):
         n_panel.update_panel_category()
 
 
-class TellMeWhyPrefsPanel(bpy.types.AddonPreferences):
+class TMYPrefsPanel(bpy.types.AddonPreferences):
     bl_idname = package_name
 
     start_expanded: bpy.props.BoolProperty(
@@ -52,5 +50,4 @@ class TellMeWhyPrefsPanel(bpy.types.AddonPreferences):
         layout.prop(self, "start_expanded")
         layout.prop(self, "n_panel_location")
 
-
-REGISTER_CLASSES = [TellMeWhyPrefsPanel]
+REGISTER_CLASSES = [TMYPrefsPanel]

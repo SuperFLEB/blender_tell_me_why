@@ -10,6 +10,7 @@ class TellMeWhyGlobals(bpy.types.PropertyGroup):
     socket_states: bpy.props.CollectionProperty(type=SocketState)
     show_unexplained: bpy.props.BoolProperty(default=False)
     variable_selected_index: bpy.props.IntProperty()
+    variable_selected_index_prefs: bpy.props.IntProperty()
 
 
 WM_PROPS: dict[str, tuple[bpy.types.AnyType, dict[str, any]]] = {

@@ -16,7 +16,7 @@ _LOADED = True
 
 
 class CreateSocketExplanation(Operator):
-    """Initialize Tell Me Why data for a given node"""
+    """Add Tell Me Why annotation data for the socket"""
     bl_idname = "tell_me_why.create_explanation"
     bl_label = "Create Tell Me Why Explanation"
     bl_options = {"UNDO"}
@@ -41,7 +41,7 @@ class CreateSocketExplanation(Operator):
 
 
 class RemoveSocketExplanation(Operator):
-    """Initialize Tell Me Why data for a given node"""
+    """Remove Tell Me Why annotation data for the socket"""
     bl_idname = "tell_me_why.remove_explanation"
     bl_label = "Remove Tell Me Why Explanation"
     bl_options = {"UNDO"}
@@ -59,7 +59,7 @@ def _update_socket(socket, index):
 
 
 class ApplyFormula(Operator):
-    """Initialize Tell Me Why data for a given node"""
+    """Apply the formula and set the default value of the socket"""
     bl_idname = "tell_me_why.apply_formula"
     bl_label = "Apply Formula"
     bl_options = {"UNDO"}
@@ -72,7 +72,7 @@ class ApplyFormula(Operator):
 
 
 class ApplyAllFormulas(Operator):
-    """Apply all formulas in the file"""
+    """Apply all Tell Me Why formulas in the file"""
     bl_idname = "tell_me_why.apply_all"
     bl_label = "Apply All Formulas"
     bl_options = {"UNDO"}
