@@ -16,9 +16,9 @@ if "_LOADED" in locals():
 _LOADED = True
 
 
-def add() -> int:
+def add(parent = None) -> int:
     """Add a variable to the scene"""
-    parent = bpy.context.scene.tmy_variables
+    parent = parent or bpy.context.scene.tmy_variables
     match_generic_name = re.compile(f'{_VAR_PREFIX}(\d+)$')
     last_existing = None
     for variable in parent:
@@ -33,9 +33,9 @@ def add() -> int:
     return len(parent) - 1
 
 
-def remove(index: int) -> None:
+def remove(index: int, parent = None) -> None:
     """Remove a variable from the scene by collection index"""
-    parent = bpy.context.scene.tmy_variables
+    parent = parent or bpy.context.scene.tmy_variables
     parent.remove(index)
     formula_lib.reset_variable_cache()
 

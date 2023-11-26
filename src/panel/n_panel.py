@@ -38,7 +38,7 @@ icons = {
 last_seen_node = None
 
 
-class TellMeWhyPanel(Panel):
+class NODE_PT_TellMeWhy(Panel):
     bl_idname = "NODE_PT_tell_me_why"
     bl_category = "Tell Me Why"
     bl_label = "Tell Me Why"
@@ -270,7 +270,7 @@ def set_panel_category_from_prefs():
     """Set the panel's category (tab) from the n_panel_location preference"""
     try:
         location = bpy.context.preferences.addons[package_name].preferences.n_panel_location
-        TellMeWhyPanel.bl_category = location
+        NODE_PT_TellMeWhy.bl_category = location
     except AttributeError:
         # This means the preferences aren't set up, so just pass and use the default
         pass
@@ -278,9 +278,9 @@ def set_panel_category_from_prefs():
 
 def update_panel_category():
     """Set the panel's category (tab) from the n_panel_location preference and unregister/reregister the panel"""
-    bpy.utils.unregister_class(TellMeWhyPanel)
+    bpy.utils.unregister_class(NODE_PT_TellMeWhy)
     set_panel_category_from_prefs()
-    bpy.utils.register_class(TellMeWhyPanel)
+    bpy.utils.register_class(NODE_PT_TellMeWhy)
 
 
-REGISTER_CLASSES = [TellMeWhyPanel]
+REGISTER_CLASSES = [NODE_PT_TellMeWhy]

@@ -1,28 +1,35 @@
-from bpy.types import Panel, UIList
-
-from ..lib import pkginfo, variable as variable_lib
+import bpy
+from bpy.types import Panel, Menu
+from ..lib import pkginfo, addon as addon_lib, variable as variable_lib
+from ..operator import variable as variable_op
+from . import variables_uilist
 
 package_name = pkginfo.package_name()
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (pkginfo, variable_lib):  # list all imports here
+    for mod in (pkginfo, addon_lib, variable_op):
         importlib.reload(mod)
 _LOADED = True
 
 
-class TMY_UL_variables(UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname):
-        split = layout.row()
-        split.label(text=item.name)
-        split.label(text=item.formula)
+class TMY_MT_ImportVariables(Menu):
+    bl_idname = 'TMY_MT_import_variables'
+    bl_label = 'Import Variables From...'
+
+    def draw(self, context):
+        layout = self.layout
+        for scene in bpy.data.scenes:
+            if scene != context.scene:
+                oper = layout.operator(variable_op.ImportVariablesFromScene.bl_idname, text=scene.name)
+                oper.scene = scene.name
 
 
-class TellMeWhyFileVariablesPanel(Panel):
+class NODE_PT_TMYFileVariables(Panel):
     bl_idname = "NODE_PT_tmy_file_variables"
     bl_category = "Tell Me Why"
-    bl_label = "File Variables"
+    bl_label = "Scene Variables"
     bl_space_type = "NODE_EDITOR"
     bl_region_type = "UI"
 
@@ -30,14 +37,14 @@ class TellMeWhyFileVariablesPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
+        list_row = layout.row()
+
         tmy = context.window_manager.tell_me_why_globals
         pointer = variable_lib.get_variables_pointer()
 
-        list_row = layout.row()
-
         list_col = list_row.column()
-        list_col.template_list("TMY_UL_variables", "variables_list", pointer[0], pointer[1], tmy,
-                               "variable_selected_index")
+        list_col.template_list(variables_uilist.TMY_UL_Variables.bl_idname, "variables_list", pointer[0], pointer[1],
+                               tmy, "variable_selected_index")
 
         variables = variable_lib.get_variables()
         if variables and variables[tmy.variable_selected_index]:
@@ -49,5 +56,14 @@ class TellMeWhyFileVariablesPanel(Panel):
         ops_col.operator("tell_me_why.add_scene_variable", icon='ADD', text="")
         ops_col.operator("tell_me_why.remove_scene_variable", icon='REMOVE', text="")
 
+        layout.menu(TMY_MT_ImportVariables.bl_idname)
 
-REGISTER_CLASSES = [TMY_UL_variables, TellMeWhyFileVariablesPanel]
+        if len(bpy.data.scenes) > 1:
+            scene_box = layout.box()
+            addon_lib.multiline_label(context, scene_box,
+                                      "You have multiple Scenes in this document. Variables are set per-scene, so you "
+                                      "may need to import them from another Scene in order for all formulas "
+                                      "to function.", icon="INFO")
+
+
+REGISTER_CLASSES = [NODE_PT_TMYFileVariables, TMY_MT_ImportVariables]

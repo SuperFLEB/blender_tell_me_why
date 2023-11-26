@@ -1,4 +1,5 @@
 import bpy
+import bpy.utils.previews
 from pathlib import Path
 from typing import Callable, Type
 from types import ModuleType
@@ -16,7 +17,7 @@ This library contains helper functions useful in setup and management of Blender
 It is required by the __init__.py, so don't remove it unless you fix dependencies.
 """
 
-_icons = {}
+_icons = None
 icons = {}
 _builtin_icons = {ei.name: ei.value for ei in bpy.types.UILayout.bl_rna.functions["prop"].parameters["icon"].enum_items}
 

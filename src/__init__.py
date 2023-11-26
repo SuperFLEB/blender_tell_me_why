@@ -4,17 +4,17 @@ import bpy
 
 from .lib import addon
 from .operator import explanation, variable as variable_operators
-from .panel import preferences as preferences_panel, n_panel, variables as variables_panel
+from .panel import preferences as preferences_panel, n_panel, variables as variables_panel, variables_uilist
 from .props import wm_props, explanation as explanation_props, variable as variable_props
 
 if "_LOADED" in locals():
     import importlib
 
     for mod in (
-            wm_props, addon, explanation, variable_operators, preferences_panel, n_panel, variables_panel,
-            explanation_props,
-            variable_props):  # list all imports here
+            wm_props, addon, explanation, variable_operators, variable_props, n_panel, variables_panel,
+            explanation_props, variables_uilist, preferences_panel):
         importlib.reload(mod)
+
 _LOADED = True
 
 package_name = __package__
@@ -42,6 +42,7 @@ menus: list[tuple[str, Callable]] = [
 
 # Registerable modules have a REGISTER_CLASSES list that lists all registerable classes in the module
 registerable_modules = [
+    variable_props,
     # preferences_panel MUST be registered before n_panel
     preferences_panel,
     wm_props,
@@ -50,7 +51,7 @@ registerable_modules = [
     variable_operators,
     n_panel,
     variables_panel,
-    variable_props,
+    variables_uilist,
 ]
 
 registerable_handler_modules = []
@@ -66,6 +67,7 @@ def register() -> None:
         except RuntimeError:
             pass
 
+        print(f"{bl_info['name']} trying to register class:", c)
         bpy.utils.register_class(c)
         if hasattr(c, "post_register") and callable(c.post_register):
             c.post_register()
@@ -73,7 +75,7 @@ def register() -> None:
         print(f"{bl_info['name']} registered class:", c)
 
         # Once we've registered the prefs, we can set the n-panel's "bl_category" before that's registered
-        if c is preferences_panel.TellMeWhyPrefsPanel:
+        if c is preferences_panel.TMYPrefsPanel:
             n_panel.set_panel_category_from_prefs()
 
     for c in registerable_handler_modules:
@@ -112,7 +114,9 @@ def unregister() -> None:
             bpy.utils.unregister_class(c)
             if hasattr(c, "post_unregister") and callable(c.post_unregister):
                 c.post_unregister()
-        except RuntimeError:
+            print(f"{bl_info['name']} unregistered class:", c)
+        except RuntimeError as e:
+            print(f"{bl_info['name']} failed to registered class:", c, e)
             pass
 
     addon.unregister_icons()

@@ -116,11 +116,10 @@ def eval_variable(name: str, formula: str):
     try:
         result = tuple([float(r) for r in result]) if util.is_iterable(result) else float(result)
     except BaseException as e:
-        raise FormulaExecutionException(f"Variable evaluation of variable {name} raised an exception: {e}")
+        raise FormulaExecutionException(f"Variable evaluation of \"{name}\" raised an exception: {e}")
 
     _variable_formula_cache[name] = formula
     _variable_eval_cache[formula] = result
-    print("Evaluated variable:", name, formula, result)
     return result
 
 
@@ -133,4 +132,10 @@ def reset_variable_cache():
 
 
 def eval_all_variables() -> dict[str, int | float | tuple[float, ...]]:
-    return {v.name: eval_variable(v.name, v.formula) for v in variable_lib.get_variables()}
+    evaled_vars = {}
+    for v in variable_lib.get_variables():
+        try:
+            evaled_vars[v.name] = eval_variable(v.name, v.formula)
+        except FormulaExecutionException as e:
+            print(f"Error processing variable \"{v.name}\": {e}")
+    return evaled_vars
