@@ -18,7 +18,7 @@ _LOADED = True
 
 def add(parent = None) -> int:
     """Add a variable to the scene"""
-    parent = parent or bpy.context.scene.tmy_variables
+    parent = parent if parent is not None else bpy.context.scene.tmy_variables
     match_generic_name = re.compile(f'{_VAR_PREFIX}(\d+)$')
     last_existing = None
     for variable in parent:
@@ -35,14 +35,14 @@ def add(parent = None) -> int:
 
 def remove(index: int, parent = None) -> None:
     """Remove a variable from the scene by collection index"""
-    parent = parent or bpy.context.scene.tmy_variables
+    parent = parent if parent is not None else bpy.context.scene.tmy_variables
     parent.remove(index)
     formula_lib.reset_variable_cache()
 
 
 def remove_by_name(name: str) -> bool:
     """Remove a variable from the scene by index"""
-    variables = get_variables()
+    variables = get_scene_variables()
     for idx, variable in enumerate(variables):
         if variable.name == name:
             remove(idx)
@@ -50,17 +50,17 @@ def remove_by_name(name: str) -> bool:
     return False
 
 
-def get_variables() -> list[variable_prop.TMYVariable]:
+def get_scene_variables() -> list[variable_prop.TMYVariable]:
     """Get TMYVariable objects for all variables"""
     parent = bpy.context.scene.tmy_variables
     return list(parent)
 
 
-def get_variables_pointer() -> tuple[AnyType, str]:
+def get_scene_variables_pointer() -> tuple[AnyType, str]:
     """Get the object/key pointer to where variables are stored (for UILists, etc)"""
     return bpy.context.scene, "tmy_variables"
 
 
 def get_formulas() -> dict[str, str]:
     """Get a dict of name:formula for variables"""
-    return {v.name: v.formula for v in get_variables()}
+    return {v.name: v.formula for v in get_scene_variables()}
