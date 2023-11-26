@@ -133,7 +133,7 @@ def reset_variable_cache():
 
 def eval_all_variables() -> dict[str, int | float | tuple[float, ...]]:
     evaled_vars = {}
-    for v in variable_lib.get_variables():
+    for v in variable_lib.get_scene_variables():
         try:
             evaled_vars[v.name] = eval_variable(v.name, v.formula)
         except FormulaExecutionException as e:
