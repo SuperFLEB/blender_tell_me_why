@@ -1,15 +1,15 @@
 import bpy
-from bpy.types import Panel, Menu
-from ..lib import pkginfo, addon as addon_lib, variable as variable_lib
+from bpy.types import Panel, Menu, UIList
+from . import ul_variables
+from ..lib import pkginfo, addon as addon_lib, variable as variable_lib, formula as formula_lib
 from ..operator import variable as variable_op
-from . import variables_uilist
 
 package_name = pkginfo.package_name()
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (pkginfo, addon_lib, variable_op):
+    for mod in (pkginfo, addon_lib, variable_op, formula_lib):
         importlib.reload(mod)
 _LOADED = True
 
@@ -24,7 +24,6 @@ class TMY_MT_ImportVariables(Menu):
             if scene != context.scene:
                 oper = layout.operator(variable_op.ImportVariablesFromScene.bl_idname, text=scene.name)
                 oper.scene = scene.name
-
 
 class NODE_PT_TMYFileVariables(Panel):
     bl_idname = "NODE_PT_tmy_file_variables"
@@ -43,7 +42,7 @@ class NODE_PT_TMYFileVariables(Panel):
         pointer = variable_lib.get_variables_pointer()
 
         list_col = list_row.column()
-        list_col.template_list(variables_uilist.TMY_UL_Variables.bl_idname, "variables_list", pointer[0], pointer[1],
+        list_col.template_list(ul_variables.TMY_UL_Variables.bl_idname, "variables_list", pointer[0], pointer[1],
                                tmy, "variable_selected_index")
 
         variables = variable_lib.get_variables()

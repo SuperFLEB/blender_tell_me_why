@@ -5,9 +5,10 @@ from ..lib import formula as formula_lib
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (formula_lib, ):  # list all imports here
+    for mod in (formula_lib,):  # list all imports here
         importlib.reload(mod)
 _LOADED = True
+
 
 class TMY_UL_Variables(UIList):
     bl_idname = "TMY_UL_Variables"
@@ -23,6 +24,5 @@ class TMY_UL_Variables(UIList):
         split.label(text="", icon='ERROR' if not evaled_ok else 'CHECKMARK')
         split.label(text=item.name)
         split.label(text=item.formula)
-
 
 REGISTER_CLASSES = [TMY_UL_Variables]

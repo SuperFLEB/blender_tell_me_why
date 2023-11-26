@@ -1,13 +1,13 @@
 import bpy
 from ..props import variable as variable_props
 from ..lib import pkginfo
-from ..lib import addon as addon_lib, util
-from . import n_panel, variables_uilist
+from ..lib import addon as addon_lib, variable as variable_lib, util
+from . import n_panel
 
 if "_LOADED" in locals():
     import importlib
 
-    for mod in (pkginfo, variable_props, addon_lib, util, n_panel, variables_uilist):
+    for mod in (pkginfo, variable_props, addon_lib, variable_lib, util, n_panel):
         importlib.reload(mod)
 _LOADED = True
 
@@ -22,6 +22,8 @@ def set_location(self, value):
     self["value"] = value
     if changed:
         n_panel.update_panel_category()
+
+
 
 
 class TMYPrefsPanel(bpy.types.AddonPreferences):
@@ -46,6 +48,10 @@ class TMYPrefsPanel(bpy.types.AddonPreferences):
     )
 
     def draw(self, context) -> None:
+        tmy = context.window_manager.tell_me_why_globals
+
+
+
         layout = self.layout
         layout.prop(self, "start_expanded")
         layout.prop(self, "n_panel_location")
