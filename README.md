@@ -1,5 +1,7 @@
 # Tell Me Why
 
+![Tell Me Why: Node Annotations for Blender](doc_support/tmy_banner.png)
+
 https://github.com/SuperFLEB/blender_tell_me_why
 
 A Blender addon that lets you show the math and take notes on your nodes, so you're never left wondering _exactly why_
