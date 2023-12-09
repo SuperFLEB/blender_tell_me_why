@@ -6,13 +6,14 @@ from .lib import addon, icons as icons_lib
 from .operator import explanation, variable as variable_operators
 from .panel import preferences as preferences_panel, n_panel, variables as variables_panel, ul_variables
 from .props import wm_props, explanation as explanation_props, variable as variable_props
+from .header import node_editor
 
 if "_LOADED" in locals():
     import importlib
 
     for mod in (
             wm_props, addon, explanation, variable_operators, variable_props, n_panel, variables_panel,
-            explanation_props, ul_variables, preferences_panel):
+            explanation_props, ul_variables, preferences_panel, node_editor):
         importlib.reload(mod)
 
 _LOADED = True
@@ -30,14 +31,12 @@ bl_info = {
     "doc_url": "https://github.com/SuperFLEB/blender_tell_me_why",
     "tracker_url": "https://github.com/SuperFLEB/blender_tell_me_why/issues",
     "support": "COMMUNITY",
-    # Categories:
-    # 3D View, Add Curve, Add Mesh, Animation, Compositing, Development, Game Engine, Import-Export, Lighting, Material,
-    # Mesh, Node, Object, Paint, Physics, Render, Rigging, Scene, Sequencer, System, Text Editor, UV, User Interface
     "category": "Node",
 }
 
 menus: list[tuple[str, Callable]] = [
     ("TOPBAR_MT_file", addon.menuitem(explanation.ApplyAllFormulas)),
+    ("NODE_HT_header", node_editor.annotations_indicator)
 ]
 
 # Registerable modules have a REGISTER_CLASSES list that lists all registerable classes in the module
@@ -66,7 +65,6 @@ def register() -> None:
         except RuntimeError:
             pass
 
-        print(f"{bl_info['name']} trying to register class:", c)
         bpy.utils.register_class(c)
         if hasattr(c, "post_register") and callable(c.post_register):
             c.post_register()
