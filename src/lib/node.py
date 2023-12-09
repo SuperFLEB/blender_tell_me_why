@@ -1,5 +1,5 @@
-from bpy.types import NodeSocket
-
+from dataclasses import dataclass
+from bpy.types import Node, NodeSocket
 
 def socket_type_label(socket: NodeSocket):
     return {
@@ -54,3 +54,28 @@ def get_value_types(socket: NodeSocket) -> list[str]:
 
 def can_value_numeric_compare(socket: NodeSocket):
     return socket.type in ["INT", "VALUE", "VECTOR", "RGBA"]
+
+
+@dataclass
+class ExplanationState():
+    can_explain: bool = False
+    has_explained: bool = False
+    has_unexplained: bool = False
+
+
+def get_node_explanation_state(node: Node | None) -> ExplanationState:
+    node_state = ExplanationState()
+    if not node:
+        return node_state
+    for socket in node.inputs:
+        if socket.hide_value or socket.type == "CUSTOM" or not socket.enabled:
+            continue
+        node_state.can_explain = True
+        if hasattr(socket, "tmy_explanation"):
+            if socket.tmy_explanation.active:
+                node_state.has_explained = True
+            else:
+                node_state.has_unexplained = True
+        if node_state.has_explained and node_state.has_unexplained:
+            return node_state
+    return node_state

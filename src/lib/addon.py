@@ -59,7 +59,7 @@ def unregister_menus(menus: list[tuple[str, Callable]]):
 
 
 def multiline_label(context, layout: bpy.types.UILayout = None, text: str = None, icon: str = None,
-                    omit_empty: bool = False) -> None:
+                    omit_empty: bool = False, width: int = None) -> None:
     if omit_empty and not text:
         return
     blank_icon = {"icon": "BLANK1"} if icon else {}
@@ -67,7 +67,8 @@ def multiline_label(context, layout: bpy.types.UILayout = None, text: str = None
 
     container = layout.column()
     container.scale_y = 0.8
-    lines = util.wordwrap(text, context.region.width / 8)
+
+    lines = util.wordwrap(text, width or (context.region.width / 8))
     container.label(text=lines[0], **icon)
     for line in lines[1:]:
         lbl = container.label(text=line, **blank_icon)
