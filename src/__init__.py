@@ -2,7 +2,7 @@ from typing import Callable
 
 import bpy
 
-from .lib import addon
+from .lib import addon, icons as icons_lib
 from .operator import explanation, variable as variable_operators
 from .panel import preferences as preferences_panel, n_panel, variables as variables_panel, ul_variables
 from .props import wm_props, explanation as explanation_props, variable as variable_props
@@ -56,9 +56,8 @@ registerable_modules = [
 
 registerable_handler_modules = []
 
-
 def register() -> None:
-    addon.register_icons()
+    icons_lib.register_icons()
 
     for c in addon.get_registerable_classes(registerable_modules):
         # Attempt to clean up if the addon broke during registration.
@@ -119,7 +118,7 @@ def unregister() -> None:
             print(f"{bl_info['name']} failed to registered class:", c, e)
             pass
 
-    addon.unregister_icons()
+    icons_lib.unregister_icons()
 
 
 if __name__ == "__main__":
