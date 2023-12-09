@@ -2,11 +2,11 @@ import bpy
 from bpy.types import Panel, UILayout, NodeSocket
 
 from ..lib import pkginfo, util, node as node_lib, formula as formula_lib, addon as addon_lib, \
-    evaluation as evaluation_lib
+    evaluation as evaluation_lib, icons as icons_lib
 from ..operator import explanation as explanation_op
 
 package_name = pkginfo.package_name()
-icon_value = addon_lib.icon_value
+icon_value = icons_lib.icon_value
 
 if "_LOADED" in locals():
     import importlib

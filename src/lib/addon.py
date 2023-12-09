@@ -1,10 +1,6 @@
-from pathlib import Path
 from types import ModuleType
 from typing import Callable, Type
-
 import bpy
-import bpy.utils.previews
-
 from . import util
 
 if "_LOADED" in locals():
@@ -18,10 +14,6 @@ _LOADED = True
 This library contains helper functions useful in setup and management of Blender addons.
 It is required by the __init__.py, so don't remove it unless you fix dependencies.
 """
-
-_icons = None
-icons = {}
-_builtin_icons = {ei.name: ei.value for ei in bpy.types.UILayout.bl_rna.functions["prop"].parameters["icon"].enum_items}
 
 
 def menuitem(cls: bpy.types.Operator | bpy.types.Menu, operator_context: str = "EXEC_DEFAULT") -> Callable:
@@ -38,6 +30,11 @@ def menuitem(cls: bpy.types.Operator | bpy.types.Menu, operator_context: str = "
 
         return submenu_fn
     raise Exception(f"Tell Me Why: Unknown menu type for menu {cls}. The developer screwed up.")
+
+
+def warn_unregisterable(registerable_modules: list[ModuleType]) -> None:
+    def can_register(module: ModuleType) -> bool:
+        return hasattr(module, "REGISTER_CLASSES") or hasattr(module, "REGISTER_FUNCTIONS") or hasattr(module, "UNREGISTER_FUNCTIONS")
 
 
 def get_registerable_classes(registerable_modules: list[ModuleType]) -> list[Type]:
@@ -74,32 +71,3 @@ def multiline_label(context, layout: bpy.types.UILayout = None, text: str = None
     container.label(text=lines[0], **icon)
     for line in lines[1:]:
         lbl = container.label(text=line, **blank_icon)
-
-
-def register_icons():
-    global _icons, icons
-    _icons = bpy.utils.previews.new()
-    icon_files = Path(__file__).parents[1].joinpath("icons").glob("*.png")
-    for icon_file in icon_files:
-        stem = icon_file.stem
-        new_icon = _icons.load(stem, str(icon_file), "IMAGE")
-        icons[stem] = new_icon.icon_id
-        print(f"Registering icon: {stem} (ID {icons[stem]} as {icon_file}")
-
-
-def unregister_icons():
-    global _icons, icons
-    bpy.utils.previews.remove(_icons)
-
-
-def icon_value(name: str) -> int:
-    """Return an icon_value for a given icon_name, either from the builtin icons set or from the registered custom icons.
-    Returns NONE (0) if an invalid icon name is given."""
-    global _builtin_icons
-    id = _builtin_icons.get(name)
-    if id:
-        return id
-    custom = _icons.get(name)
-    if custom:
-        return custom.icon_id
-    return 0
