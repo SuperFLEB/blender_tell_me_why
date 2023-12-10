@@ -5,18 +5,16 @@
 https://github.com/SuperFLEB/blender_tell_me_why
 
 A Blender addon that lets you show the math and take notes on your nodes, so you're never left wondering _exactly why_
-you set the scale on that input to 21.887.
+you set the scale on that input to 1.885.
 
 ## Features
 
 * Add descriptive annotations to node socket values
+* See annotations in the Node Editor with a quick pop-out menu
 * Use formulas that calculate socket default values
 * Formulas and annotations are saved with the Blender file
-* Scene-wide variables for use in formulas and values
+* Scene-wide variables for use in formulas and values, and a global library (in Preferences) you can import to any file.
 
-### Future Features, Coming Soon
-
-* Add a way to see annotations from the Node Editor top bar. 
 
 ## To install
 
@@ -25,16 +23,24 @@ that you can install into Blender.
 
 ## To use
 
-### Annotations and Formulas
+### Annotations
 
-Whenever you select a node in a node editor, you'll find a new Tell Me Why tab in the N-panel. Click the "+" to add
-annotations, then the pencil icon to edit the annotation. You can add notes (text fields marked with the "i" icon) or
-toggle the "f(x)" icon to switch between using the value from the node, or setting a formula or value.
-Formulas can include mathematical operators, functions, and constants. If the value of the node socket changes from
+Select a node in a node editor and open the N-panel (hit "N"), you'll find a new Tell Me Why tab in the N-panel.
+Click a "+" to add annotations, and the pencil icon to edit them. You can add notes (text fields marked with the
+"i" icon) or toggle the "f(x)" icon to use formulas or annotated values. The notes and values you enter are saved with
+the file.
+
+(If you'd rather have the Tell Me Why annotation panel in the Node tab. Just change the setting in the addon's
+Preferences panel.) 
+
+The addon also puts a button in the header bar of your node editors. If a node is annotated, it'll switch from
+"No Annotations" to "Tell Me Why". Click for a quick-look overview of any notes or values on the node.
+
+### Formulas
+
+Formulas can include mathematical operators, functions, and variables. If the value of the node socket changes from
 the formula, click the "Apply" button to re-run the formula and set the value, or use "File > Apply All Formulas" to
-apply formulas everywhere in the file. 
-
-You can also set the Tell Me Why panel to appear in the Node tab. Just look in the addon's Preferences panel. 
+apply formulas everywhere in the file.
 
 ### Variables
 
