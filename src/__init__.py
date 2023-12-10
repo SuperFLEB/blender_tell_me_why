@@ -24,7 +24,7 @@ bl_info = {
     "name": "Tell Me Why",
     "description": "Create descriptions, hints, and formulas for node input socket values",
     "author": "FLEB (a.k.a. SuperFLEB)",
-    "version": (0, 4, 0),
+    "version": (0, 5, 0),
     "blender": (3, 4, 0),
     "location": "Node Editor",
     "warning": "",  # used for warning icon and text in addons panel

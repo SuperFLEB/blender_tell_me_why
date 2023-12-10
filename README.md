@@ -1,6 +1,6 @@
 # Tell Me Why
 
-![Tell Me Why: Node Annotations for Blender](doc_support/tmy_banner.png)
+![Tell Me Why: Node Annotations for Blender](docs_support/tmy_banner.png)
 
 https://github.com/SuperFLEB/blender_tell_me_why
 
