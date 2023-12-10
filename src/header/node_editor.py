@@ -13,7 +13,7 @@ _LOADED = True
 def annotations_indicator(self, context):
     layout = self.layout
     active_node = context.active_node
-    active_node = active_node if active_node.select else None
+    active_node = active_node if active_node and active_node.select else None
     node_state = node_lib.get_node_explanation_state(active_node)
 
     box = layout.box()
