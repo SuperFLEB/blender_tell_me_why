@@ -281,50 +281,50 @@ class NODE_PT_TellMeWhyPopover(Panel):
             if explanation.description:
                 addon_lib.multiline_label(context, sockbox, explanation.description, icon="INFO", width=30)
 
-            components: list[
-                ComponentValueExplanation] = explanation.components if explanation.split_components else explanation.components[
-                                                                                                         0:]
+            # Some sockets don't have default values (such as Geometry or Shader inputs),
+            # so skip all this if they don't.
+            if hasattr(socket, "default_value"):
+                components: list[ComponentValueExplanation] = explanation.components if explanation.split_components else explanation.components[0:]
+                default_values = socket.default_value if util.is_iterable(socket.default_value) else [socket.default_value]
+                components = zip(_get_component_labels(socket), components, default_values)
+                evaluated = evaluation_lib.Evaluation(socket)
 
-            default_values = socket.default_value if util.is_iterable(socket.default_value) else [socket.default_value]
-            components = zip(_get_component_labels(socket), components, default_values)
-            evaluated = evaluation_lib.Evaluation(socket)
+                for index, zipped in enumerate(components):
+                    component_label, component, default_value = zipped
+                    eval_error = evaluated.is_error(index)
+                    eval_match = evaluated.is_index_matching(index)
 
-            for index, zipped in enumerate(components):
-                component_label, component, default_value = zipped
-                eval_error = evaluated.is_error(index)
-                eval_match = evaluated.is_index_matching(index)
+                    if not (component.description or component.use_formula):
+                        continue
 
-                if not (component.description or component.use_formula):
-                    continue
+                    component_box = sockbox.box()
+                    component_box.scale_y = 0.7
+                    row = component_box.split(factor=0.5)
 
-                component_box = sockbox.box()
-                component_box.scale_y = 0.7
-                row = component_box.split(factor=0.5)
+                    # Only show labels when split, otherwise it's redundant to the socket name
+                    if explanation.split_components:
+                        row.label(text=component_label,
+                                  icon_value=icon_value(icons["formula"]) if component.use_formula else icon_value(
+                                      icons["node_value"]))
+                        row.label(
+                            text=component.formula if component.use_formula else util.format_prop_value(default_value))
+                    elif component.use_formula:
+                        component_box.label(text=component.formula, icon_value=icon_value(icons["formula"]))
+                    else:
+                        component_box.label(text=util.format_prop_value(default_value),
+                                            icon_value=icon_value(icons["node_value"]))
 
-                # Only show labels when split, otherwise it's redundant to the socket name
-                if explanation.split_components:
-                    row.label(text=component_label,
-                              icon_value=icon_value(icons["formula"]) if component.use_formula else icon_value(
-                                  icons["node_value"]))
-                    row.label(
-                        text=component.formula if component.use_formula else util.format_prop_value(default_value))
-                elif component.use_formula:
-                    component_box.label(text=component.formula, icon_value=icon_value(icons["formula"]))
-                else:
-                    component_box.label(text=util.format_prop_value(default_value),
-                                        icon_value=icon_value(icons["node_value"]))
-
-                if eval_error:
-                    component_box.label(text="Formula is invalid", icon_value=icon_value(icons["bad_formula"]))
-                elif not eval_match:
-                    component_box.context_pointer_set(name="operator_socket", data=socket)
-                    component_box.scale_y = 1
-                    apply_operator = component_box.operator(
-                        explanation_op.ApplyFormula.bl_idname,
-                        text="Apply Formula",
-                        icon_value=icon_value(icons["mismatch"])
-                    )
-                    apply_operator.component_index = index
+                    if eval_error:
+                        component_box.label(text="Formula is invalid", icon_value=icon_value(icons["bad_formula"]))
+                    elif not eval_match:
+                        component_box.context_pointer_set(name="operator_socket", data=socket)
+                        component_box.scale_y = 1
+                        apply_operator = component_box.operator(
+                            explanation_op.ApplyFormula.bl_idname,
+                            text="Apply Formula",
+                            icon_value=icon_value(icons["mismatch"])
+                        )
+                        apply_operator.component_index = index
 
                 if component.description:
                     addon_lib.multiline_label(context, component_box, text=component.description, width=30)

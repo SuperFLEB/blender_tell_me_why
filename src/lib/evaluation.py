@@ -38,6 +38,7 @@ class Evaluation:
                 self._results = self._values
                 self._formulas = ("",) * len(self._values)
                 self._matches = (True,) * len(self._values)
+                self._errors = (False,)
                 return
 
             self._formulas = (explanation.components[0].formula,)
@@ -53,6 +54,7 @@ class Evaluation:
             if not component.use_formula:
                 self._formulas += (self._values[c_idx],)
                 self._results += (self._values[c_idx],)
+                self._matches += (True,)
                 self._errors += (False,)
                 continue
             self._process_results(
